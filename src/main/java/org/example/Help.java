@@ -4,11 +4,11 @@ import java.util.Map;
 
 public class Help implements BotCommand {
 
-    private final Map<String, BotCommand> bot_commands;
+    private final Map<String, BotCommand> botCommands;
 
-    public Help(Map<String, BotCommand> bot_commands) {
+    public Help(Map<String, BotCommand> botCommands) {
         super();
-        this.bot_commands = bot_commands;
+        this.botCommands = botCommands;
     }
 
     @Override
@@ -19,7 +19,7 @@ public class Help implements BotCommand {
     @Override
     public String exec() {
         var strBuilder = new StringBuilder();
-        for (var exemplaire : bot_commands.values())
+        for (var exemplaire : botCommands.values())
             strBuilder.append(exemplaire.getName() + " : " + exemplaire.getDescription() + "\n");
         return strBuilder.toString();
     }
