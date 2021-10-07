@@ -20,7 +20,7 @@ public class Help implements BotCommand {
     public String exec() {
         var strBuilder = new StringBuilder();
         for (var exemplaire : botCommands.values())
-            strBuilder.append(exemplaire.getName() + " : " + exemplaire.getDescription() + "\n");
+            strBuilder.append(exemplaire.getName() + " - " + exemplaire.getDescription() + "\n");
         return strBuilder.toString();
     }
 

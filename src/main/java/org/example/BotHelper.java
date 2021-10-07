@@ -1,5 +1,6 @@
 package org.example;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -8,15 +9,15 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 final class BotHelper {
 
-    public static void fillBotCommandsDictionary(Map<String, BotCommand> botCommands)
+    public static void fillBotCommandsDictionary(Map<String, BotCommand> mapToFill, List<BotCommand> commandsToPut)
     {    
         Consumer<BotCommand> putter = (command) -> { 
-            if (command != null && !botCommands.containsKey(command.getName()))
-                botCommands.put(command.getName(), command);
-        };        
-        putter.accept(new About());
-        putter.accept(new TimeManagement());
-        putter.accept(new Help(botCommands));
+            if (command != null && !mapToFill.containsKey(command.getName()))
+                mapToFill.put(command.getName(), command);
+        };
+        for (var command : commandsToPut){
+            putter.accept(command);
+        }
     }
 
     public static SendMessage FormMessage(Update update, Map<String, BotCommand> botCommands)

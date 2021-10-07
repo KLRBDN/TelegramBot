@@ -1,6 +1,8 @@
 package org.example;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -18,7 +20,11 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
         this.botUsername = botUsername;
         this.botToken = botToken;
         this.botCommands = new HashMap<String, BotCommand>();
-        BotHelper.fillBotCommandsDictionary(botCommands);
+        BotHelper.fillBotCommandsDictionary(botCommands, Arrays.asList(
+            new About(),
+            new TimeManagement(),
+            new Help(botCommands)
+        ));
     }
 
     public static LifeSchedulerBot getInstance(){
