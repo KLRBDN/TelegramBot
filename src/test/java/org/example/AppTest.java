@@ -11,14 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-/**
- * Unit test for simple App.
- */
 public class AppTest 
 {
-    /**
-     * Rigorous Test :-)
-     */
     @Test
     public void fillBotCommandsDictionaryTest()
     {
@@ -39,6 +33,36 @@ public class AppTest
         actual.put(timeManagement.getName(), timeManagement);
         actual.put(help.getName(), help);
         assertEquals(expected, actual);
+    }
+
+    @Test
+    public void addingSameCommandsWontWorkAndWontCrashProgram()
+    {
+        var expected = new HashMap<String, BotCommand>();
+        var about = new About();
+        var commandsToPut = Arrays.asList(
+            (BotCommand)about,
+            (BotCommand)about
+        );
+        var actual = new HashMap<String, BotCommand>();
+        actual.put(about.getName(), about);
+
+        BotHelper.fillBotCommandsDictionary(expected, commandsToPut);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void adddingNullCommandWontCrashProgram()
+    {
+        var expected = new HashMap<String, BotCommand>();
+        var commandsToPut = Arrays.asList(
+            (BotCommand)null
+        );
+
+        BotHelper.fillBotCommandsDictionary(expected, commandsToPut);
+        
+        assertEquals(expected, new HashMap<String, BotCommand>());
     }
 
     @Test
