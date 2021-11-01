@@ -19,23 +19,4 @@ public class Task {
         this.name = name;
         this.description = description;
     }
-
-    public boolean TryAddTask(Task task) {
-        // Примерная будущая реализация
-        // for (Task item : DateToTasksDict[task.date]) {
-        //     if ((task.start > item.start && task.start < item.finish) || (task.finish > item.start && task.finish < item.finish))
-        //         if (task.taskType != TaskType.overlapping || item.taskType != TaskType.overlapping)
-        //             return false;
-        // }
-        // return true;
-        return false;
-    
-    }
-
-    public void AddTask(Task task) {
-        // Примерная будущая реализация
-        // if (TryAddTask(task))
-        //     DateToTasksDict[task.date].add(task);
-    }
-
 }
