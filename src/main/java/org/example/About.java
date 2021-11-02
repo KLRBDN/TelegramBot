@@ -8,13 +8,12 @@ public class About implements BotCommand {
     }
 
     @Override
-    public String exec() {
-        return "Создатели: Михаил Яскевич, Павел Овчинников";
-    }
-
-    @Override
     public String getName() {
         return "/" + this.getClass().getSimpleName().toLowerCase();
     }
-    
+
+    @Override
+    public String exec() {
+        return "Создатели: Михаил Яскевич, Павел Овчинников";
+    }
 }

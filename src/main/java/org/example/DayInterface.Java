@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public interface DayInterface {
 
-    public Boolean TryAddTask(TimeInterval timeInterval, Task task);
+    public Boolean tryAddTask(Task task);
 
-    public Boolean DeleteTask(String name);
+    public Boolean deleteTask(String name);
 
     public ArrayList<Task> getTasks();
 }

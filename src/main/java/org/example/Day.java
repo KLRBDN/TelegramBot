@@ -1,8 +1,6 @@
 package org.example;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Day implements DayInterface {
     private ArrayList<Task> tasks;
@@ -12,10 +10,9 @@ public class Day implements DayInterface {
         tasks = new ArrayList<Task>();
     }
 
-    public Boolean TryAddTask(TimeInterval timeInterval, Task task) {
+    public Boolean tryAddTask(Task task) {
         for (Task item : this.getTasks()) {
-            if ((task.time.getStart() > item.time.getStart() && task.time.getStart() < item.time.getEnd()) ||
-                (task.time.getEnd() > item.time.getStart() && task.time.getEnd() < item.time.getEnd()))
+            if (item.timeInterval.intersects(task.timeInterval))
                 if (task.taskType != TaskType.overlapping || item.taskType != TaskType.overlapping)
                     return false;
             if (item.name == task.name)
@@ -26,7 +23,7 @@ public class Day implements DayInterface {
     } 
 
     @Override
-    public Boolean DeleteTask(String name) {
+    public Boolean deleteTask(String name) {
         for (Task task : tasks)
             if (task.name == name) {
                 tasks.remove(task);
@@ -35,11 +32,11 @@ public class Day implements DayInterface {
         return false;
     }
 
-    public Boolean CompleteTask(String name) {
+    public Boolean completeTask(String name) {
         for (Task task : tasks)
             if (task.name == name) {
                 completedTasks.add(task);
-                return DeleteTask(task.name);
+                return deleteTask(task.name);
             }
         return false;
     }
