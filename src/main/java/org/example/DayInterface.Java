@@ -1,12 +1,12 @@
 package org.example;
 
-import java.util.Map;
+import java.util.ArrayList;
 
 public interface DayInterface {
 
-    public Boolean AddTask(TimeInterval timeInterval, Task task);
+    public Boolean TryAddTask(TimeInterval timeInterval, Task task);
 
-    public Boolean DeleteTask(TimeInterval time);
+    public Boolean DeleteTask(String name);
 
-    public Map<TimeInterval, Task> getTasks();
+    public ArrayList<Task> getTasks();
 }

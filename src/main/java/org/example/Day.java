@@ -1,43 +1,51 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Day implements DayInterface {
-    private Map<TimeInterval, Task> tasks;
+    private ArrayList<Task> tasks;
+    private ArrayList<Task> completedTasks;
 
     public Day() {
-        tasks = new HashMap<TimeInterval, Task>();
+        tasks = new ArrayList<Task>();
     }
 
-    @Override
-    public Boolean AddTask(TimeInterval timeInterval, Task task) {
-        // Примерная будущая реализация
-        // if (TryAddTask(task))
-        //     DateToTasksDict[task.date].add(task);
-        // Примерная будущая реализация
-        // for (Task item : DateToTasksDict[task.date]) {
-        //     if ((task.start > item.start && task.start < item.finish) || (task.finish > item.start && task.finish < item.finish))
-        //         if (task.taskType != TaskType.overlapping || item.taskType != TaskType.overlapping)
-        //             return false;
-        // }
-        // return true;
-        return false;
-    }
-
-    @Override
-    public Boolean DeleteTask(TimeInterval time) {
-        if (tasks.containsKey(time)){
-            tasks.remove(time);
-            return true;
+    public Boolean TryAddTask(TimeInterval timeInterval, Task task) {
+        for (Task item : this.getTasks()) {
+            if ((task.time.getStart() > item.time.getStart() && task.time.getStart() < item.time.getEnd()) ||
+                (task.time.getEnd() > item.time.getStart() && task.time.getEnd() < item.time.getEnd()))
+                if (task.taskType != TaskType.overlapping || item.taskType != TaskType.overlapping)
+                    return false;
+            if (item.name == task.name)
+                return false;
         }
+        this.tasks.add(task);
+        return true;
+    } 
+
+    @Override
+    public Boolean DeleteTask(String name) {
+        for (Task task : tasks)
+            if (task.name == name) {
+                tasks.remove(task);
+                return true;
+            }
+        return false;
+    }
+
+    public Boolean CompleteTask(String name) {
+        for (Task task : tasks)
+            if (task.name == name) {
+                completedTasks.add(task);
+                return DeleteTask(task.name);
+            }
         return false;
     }
 
     @Override
-    public Map<TimeInterval, Task> getTasks() {
-        // TODO Auto-generated method stub
-        return null;
+    public ArrayList<Task> getTasks() {
+        return tasks;
     }
-    
 }
