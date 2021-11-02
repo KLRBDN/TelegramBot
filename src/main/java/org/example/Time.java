@@ -16,4 +16,18 @@ public final class Time{
     public int getMinutes() {
         return minutes;
     }
+
+    public Boolean gt(Time time){
+        return this.hours > time.getHours() 
+            || this.hours == time.getHours() && this.minutes > time.getMinutes();
+    }
+
+    public Boolean lt(Time time){
+        return this.hours < time.getHours() 
+            || this.hours == time.getHours() && this.minutes < time.getMinutes();
+    }
+
+    public Boolean eq(Time time){
+        return this.hours == time.getHours() && this.minutes == time.getMinutes();
+    }
 }
