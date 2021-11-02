@@ -4,13 +4,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class YearsDateBase {
-    public Map<String, Year> years;
+    private static YearsDateBase instance;
+    private Map<Integer, Year> years;
 
-    public YearsDateBase() {
-        this.years = new HashMap<String, Year>();
+    private YearsDateBase() {
+        this.years = new HashMap<Integer, Year>();
     }
 
-    public Map<String, Year> getYears(){
+    public static YearsDateBase getInstance(){
+        if (instance == null){
+            instance = new YearsDateBase();
+        }
+        return instance;
+    }
+
+    public Map<Integer, Year> getAllYears(){
         return this.years;
+    }
+
+    public Year getYear(Integer yearNumber){
+        if (!years.containsKey(yearNumber)){
+            if (!tryAddYear(yearNumber))
+                return null;
+        }
+        return years.get(yearNumber);
+    }
+
+    public Boolean tryAddYear(Integer yearNumber){
+        if (yearNumber < 2021 || years.containsKey(yearNumber))
+            return false;
+        years.put(yearNumber, new Year(yearNumber));
+        return true;
     }
 }
