@@ -16,4 +16,11 @@ public final class TimeInterval {
     public Time getEnd(){
         return end;
     }
+
+    public Boolean intersects(TimeInterval interval){
+        return (this.start.gt(interval.start) || this.start.eq(interval.start))
+            && this.start.lt(interval.end)
+            || this.end.gt(interval.start)
+            && (this.end.lt(interval.end) || this.end.eq(interval.end));
+    }
 }
