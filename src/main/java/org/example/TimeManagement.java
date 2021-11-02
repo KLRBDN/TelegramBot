@@ -8,13 +8,12 @@ public class TimeManagement implements BotCommand {
     }
 
     @Override
-    public String exec() {
-        return null;
-    }
-
-    @Override
     public String getName() {
         return "/" + this.getClass().getSimpleName().toLowerCase();
     }
-    
+
+    @Override
+    public String exec() {
+        return null;
+    }
 }
