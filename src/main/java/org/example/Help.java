@@ -22,6 +22,8 @@ public class Help implements BotCommand {
     }
 
     @Override
+
+    @Override
     public AnswerHandler exec() {
         var strBuilder = new StringBuilder();
         for (var exemplaire : botCommands.values())
