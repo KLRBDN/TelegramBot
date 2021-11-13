@@ -6,5 +6,5 @@ public interface BotCommand {
 
     public String getName();
     
-    public AnswerHandler exec();
+    public String exec();
 }

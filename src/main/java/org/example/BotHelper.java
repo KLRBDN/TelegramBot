@@ -8,7 +8,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 final class BotHelper {
-    private static AnswerHandler answerHandler;
 
     public static void fillBotCommandsDictionary(Map<String, BotCommand> mapToFill, List<BotCommand> commandsToPut)
     {    
@@ -23,15 +22,16 @@ final class BotHelper {
 
     public static SendMessage FormMessage(Update update, Map<String, BotCommand> botCommands)
     {
-        if (answerHandler == null){
-            answerHandler = new StandartAnswerHandler(null);
-        }
-        answerHandler = answerHandler.handle(update, botCommands);
-
         SendMessage message = new SendMessage();
         message.setChatId(update.getMessage().getChatId().toString());
-        message.setText(answerHandler.getLastBotMessage());
-        
+        if (botCommands.containsKey(update.getMessage().getText()))
+        {
+            message.setText(botCommands.get(update.getMessage().getText()).exec());
+        }
+        else
+        {
+            message.setText("Сам такой");
+        }
         return message;
     }
 }
