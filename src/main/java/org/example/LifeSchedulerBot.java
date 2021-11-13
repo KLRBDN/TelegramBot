@@ -12,6 +12,7 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
     private static LifeSchedulerBot instance;
     private final String botUsername;
     private final String botToken;
+    private final YearsDateBase yearsDateBase;
     private final Map<String, BotCommand> botCommands;
 
     private LifeSchedulerBot(String botUsername, String botToken) {
@@ -19,8 +20,10 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
         this.botUsername = botUsername;
         this.botToken = botToken;
         this.botCommands = new HashMap<String, BotCommand>();
+        this.yearsDateBase = YearsDateBase.getInstance();
         BotHelper.fillBotCommandsDictionary(botCommands, Arrays.asList(
             new About(),
+            new AddTask(this.yearsDateBase),
             new TimeManagement(),
             new Help(botCommands)
         ));

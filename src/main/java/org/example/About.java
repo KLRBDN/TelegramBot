@@ -13,7 +13,7 @@ public class About implements BotCommand {
     }
 
     @Override
-    public String exec() {
-        return "Создатели: Михаил Яскевич, Павел Овчинников";
+    public AnswerHandler exec() {
+        return new StandartAnswerHandler("Создатели: Михаил Яскевич, Павел Овчинников");
     }
 }

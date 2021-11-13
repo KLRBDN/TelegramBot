@@ -30,7 +30,7 @@ public class YearsDateBase {
         return years.get(yearNumber);
     }
 
-    public Boolean tryAddYear(Integer yearNumber){
+    private Boolean tryAddYear(Integer yearNumber){
         if (yearNumber < 2021 || years.containsKey(yearNumber))
             return false;
         years.put(yearNumber, new Year(yearNumber));

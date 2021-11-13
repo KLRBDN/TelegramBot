@@ -22,10 +22,10 @@ public class Help implements BotCommand {
     }
 
     @Override
-    public String exec() {
+    public AnswerHandler exec() {
         var strBuilder = new StringBuilder();
         for (var exemplaire : botCommands.values())
             strBuilder.append(exemplaire.getName() + " - " + exemplaire.getDescription() + "\n");
-        return strBuilder.toString();
+        return new StandartAnswerHandler(strBuilder.toString());
     } 
 }
