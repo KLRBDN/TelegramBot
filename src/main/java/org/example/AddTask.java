@@ -13,12 +13,12 @@ public class AddTask implements BotCommand {
     }
 
     @Override
-    public String getDescription() {
-        return "Добавляет задание в выбранный день в расписание";
+    public String getName() {
+        return "/" + this.getClass().getSimpleName().toLowerCase();
     }
 
     @Override
-    public String getName() {
+    public String getDescription() {
         return "/" + this.getClass().getSimpleName().toLowerCase();
     }
     
@@ -77,5 +77,4 @@ public class AddTask implements BotCommand {
             );
         return true;
     }
-    
 }
