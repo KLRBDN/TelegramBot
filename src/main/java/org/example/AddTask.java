@@ -38,51 +38,80 @@ public class AddTask implements BotCommand {
     }
 
     private AnswerHandler askTaskName(Update dateTime){
+        var splDateTime = processDateTime(dateTime);
+        if (splDateTime == null)
+            return exec();
         return new AnswerHandler() {
             public String getLastBotMessage(){
                 return "write name for your task";
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskDescriprion(answer, dateTime);
+                return askTaskDescriprion(answer, splDateTime);
             }
         };
     }
 
-    private AnswerHandler askTaskDescriprion(Update name, Update dateTime){
+    private AnswerHandler askTaskDescriprion(Update name, String[] splDateTime){
         return new AnswerHandler() {
             public String getLastBotMessage(){
                 return "write description for your task";
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskType(answer, name, dateTime);
+                return askTaskType(answer, name, splDateTime);
             }
         };
     }
 
-    private AnswerHandler askTaskType(Update description, Update name, Update dateTime){
+    private AnswerHandler askTaskType(Update description, Update name, String[] splDateTime){
         return new AnswerHandler() {
             public String getLastBotMessage(){
                 return "write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important";
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return processAnswer(answer, description, name, dateTime);
+                return processAnswer(answer, description, name, splDateTime);
             }
         };
     }
 
-    private AnswerHandler processAnswer(Update taskType, Update description, Update name, Update dateTime){
+    private String[] processDateTime(Update dateTime){
         var interval = dateTime.getMessage().getText();
         var splitted = interval.split(" - ");
         if (splitted.length != 2)
-            return exec();
+            return null;
         var dateAndStartTime = splitted[0];
         var endTime = splitted[1];
+
+        var splDateAndStartTime = dateAndStartTime.split("[. :]");
+        if (splDateAndStartTime.length != 5)
+            return null;
+
+        var splEndTime = endTime.split(":");
+        if (splEndTime.length != 2)
+            return null;
         
+        var splDateTime = new String[7];
+        for (var i = 0; i < splDateTime.length; i++){
+            if (i < 5)
+                splDateTime[i] = splDateAndStartTime[i];
+            else
+                splDateTime[i] = splEndTime[i-5];
+        }
+
+        return splDateTime;
+    }
+
+    private AnswerHandler processAnswer(Update taskType, Update description, Update name, String[] splDateTime){
         TaskType tskType = null;
-        switch (Integer.parseInt(taskType.getMessage().getText())) {
+        var typeAsInt = -1;
+        try {
+            typeAsInt = Integer.parseInt(taskType.getMessage().getText());
+        } catch (Exception e) {
+            return askTaskType(description, name, splDateTime);
+        }
+        switch (typeAsInt) {
             case 1:
                 tskType = TaskType.overlapping;
                 break;
@@ -93,32 +122,28 @@ public class AddTask implements BotCommand {
                 tskType = TaskType.important;
                 break;
             default:
-                return askTaskType(description, name, dateTime);
+                return askTaskType(description, name, splDateTime);
         };
         var descriptionAsStr = description.getMessage().getText();
         var nameAsStr = name.getMessage().getText();
-        if (addTask(tskType, descriptionAsStr, nameAsStr, dateAndStartTime, endTime)){
+        if (addTask(tskType, descriptionAsStr, nameAsStr, splDateTime)){
             return new StandartAnswerHandler("task was added");
         }
         return exec();
     }
 
     private Boolean addTask(TaskType taskType, String description, 
-                            String name, String dateAndStartTime, String endTime) {
-        var splitted = dateAndStartTime.split("[. :]");
-        if (splitted.length != 5)
+                            String name, String[] splDateTime) {
+        if (splDateTime.length != 7)
             return false;
-        var day = Integer.parseInt(splitted[0]);
-        var month = Integer.parseInt(splitted[1]);
-        var year = Integer.parseInt(splitted[2]);
-        var hoursStart = Integer.parseInt(splitted[3]);
-        var minutesStart = Integer.parseInt(splitted[4]);
+        var day = Integer.parseInt(splDateTime[0]);
+        var month = Integer.parseInt(splDateTime[1]);
+        var year = Integer.parseInt(splDateTime[2]);
+        var hoursStart = Integer.parseInt(splDateTime[3]);
+        var minutesStart = Integer.parseInt(splDateTime[4]);
 
-        var splittedEndTime = endTime.split(":");
-        if (splittedEndTime.length != 2)
-            return false;
-        var hoursEnd = Integer.parseInt(splittedEndTime[0]);
-        var minutesEnd = Integer.parseInt(splittedEndTime[1]);
+        var hoursEnd = Integer.parseInt(splDateTime[5]);
+        var minutesEnd = Integer.parseInt(splDateTime[6]);
 
         try {
             yearsDataBase
