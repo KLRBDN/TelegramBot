@@ -5,11 +5,11 @@ import java.util.Map;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
-    private final YearsDateBase yearsDateBase;
+    private final YearsDataBase yearsDataBase;
 
-    public AddTask(YearsDateBase yearsDateBase) {
+    public AddTask(YearsDataBase yearsDataBase) {
         super();
-        this.yearsDateBase = yearsDateBase;
+        this.yearsDataBase = yearsDataBase;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class AddTask implements BotCommand {
             return false;
         var hoursEnd = Integer.parseInt(splittedEndTime[0]);
         var minutesEnd = Integer.parseInt(splittedEndTime[1]);
-        yearsDateBase
+        yearsDataBase
             .getYear(year)
             .getMonth(month)
             .getDay(day)

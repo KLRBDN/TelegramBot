@@ -15,7 +15,7 @@ public class GetTasks implements BotCommand {
     @Override
     public AnswerHandler exec() {
         var strBuilder = new StringBuilder();
-        for (Task task : YearsDateBase.getToday().getTasks())
+        for (Task task : YearsDataBase.getToday().getTasks())
             strBuilder.append(task.name + ": " + task.timeInterval.toString() + "\n");
         return new StandartAnswerHandler(strBuilder.toString());    
     }
