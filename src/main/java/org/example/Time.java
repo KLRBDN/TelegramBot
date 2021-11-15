@@ -34,16 +34,12 @@ public final class Time{
     public String toString() {
         String timeMinutes;
         String timeHours;
-        if (minutes == 0)
+        if (minutes < 10)
             timeMinutes = "0" + minutes;
-        else if (minutes < 10)
-            timeMinutes = minutes + "0";
         else 
             timeMinutes = Integer.toString(minutes);
-        if (hours == 0)
+        if (hours < 10)
             timeHours = "0" + hours;
-        else if (hours < 10)
-            timeHours = hours + "0";
         else 
             timeHours = Integer.toString(hours);
         return timeHours + ":" + timeMinutes;
