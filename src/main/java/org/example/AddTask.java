@@ -2,6 +2,8 @@ package org.example;
 
 import java.util.Map;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
@@ -19,7 +21,7 @@ public class AddTask implements BotCommand {
 
     @Override
     public String getDescription() {
-        return "/" + this.getClass().getSimpleName().toLowerCase();
+        return "Добавляет задание";
     }
     
     @Override
@@ -63,7 +65,9 @@ public class AddTask implements BotCommand {
             return false;
         var hoursEnd = Integer.parseInt(splittedEndTime[0]);
         var minutesEnd = Integer.parseInt(splittedEndTime[1]);
-        yearsDateBase
+
+        try {
+            yearsDateBase
             .getYear(year)
             .getMonth(month)
             .getDay(day)
@@ -75,6 +79,10 @@ public class AddTask implements BotCommand {
                     "debug name", 
                     "debug description")
             );
+        } catch (InvalidAttributeValueException | NullPointerException e) {
+            return false;
+        }
+
         return true;
     }
 }
