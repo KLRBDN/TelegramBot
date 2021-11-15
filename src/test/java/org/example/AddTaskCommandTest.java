@@ -2,6 +2,7 @@ package org.example;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -38,7 +39,7 @@ public class AddTaskCommandTest {
         var answer = new Update();
         answer.setMessage(myMessage);
 
-        var taskCmd = new AddTask(YearsDateBase.getInstance());
+        var taskCmd = new AddTask(YearsDataBase.getInstance());
         var handler1 = taskCmd.exec();
 
         assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00", handler1.getLastBotMessage());
@@ -54,5 +55,33 @@ public class AddTaskCommandTest {
             assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00", handler2.getLastBotMessage());
         }
         
+    }
+
+    @Test
+    public void addingTwoTasksWithSameNameWontWork() throws Exception {
+        var day = new Day();
+        day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.overlapping, "test", "this is test task"));
+        day.tryAddTask(new Task(new Time(2, 0), new Time(3, 0), TaskType.overlapping, "test", "this is second test task"));
+        assertEquals(day.getTasks().size(), 1);
+        assertEquals(day.getTasks().get(0).description, "this is test task");
+    }
+
+    @Test
+    public void addingTwoNonOverlappingTasksInSameTimeWontWork() throws Exception {
+        var day = new Day();
+        day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.nonOverlapping, "first test", "test"));
+        day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.nonOverlapping, "second test", "test"));
+        assertEquals(day.getTasks().size(), 1);
+        assertEquals(day.getTasks().get(0).name, "first test");
+    }
+
+    @Test
+    public void addingTwoOverlappingTasksInSameTimeWorks() throws Exception {
+        var day = new Day();
+        day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.overlapping, "first test", "test"));
+        day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.overlapping, "second test", "test"));
+        assertEquals(day.getTasks().size(), 2);
+        assertEquals(day.getTasks().get(0).name, "first test");
+        assertEquals(day.getTasks().get(1).name, "second test");
     }
 }

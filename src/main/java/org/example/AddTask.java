@@ -67,7 +67,7 @@ public class AddTask implements BotCommand {
         var minutesEnd = Integer.parseInt(splittedEndTime[1]);
 
         try {
-            yearsDateBase
+            yearsDataBase
             .getYear(year)
             .getMonth(month)
             .getDay(day)
