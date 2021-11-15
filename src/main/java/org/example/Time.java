@@ -34,4 +34,18 @@ public final class Time{
     public Boolean eq(Time time){
         return this.hours == time.getHours() && this.minutes == time.getMinutes();
     }
+
+    public String toString() {
+        String timeMinutes;
+        String timeHours;
+        if (minutes < 10)
+            timeMinutes = "0" + minutes;
+        else 
+            timeMinutes = Integer.toString(minutes);
+        if (hours < 10)
+            timeHours = "0" + hours;
+        else 
+            timeHours = Integer.toString(hours);
+        return timeHours + ":" + timeMinutes;
+    }
 }

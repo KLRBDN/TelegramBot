@@ -7,11 +7,11 @@ import javax.management.InvalidAttributeValueException;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
-    private final YearsDateBase yearsDateBase;
+    private final YearsDataBase yearsDataBase;
 
-    public AddTask(YearsDateBase yearsDateBase) {
+    public AddTask(YearsDataBase yearsDataBase) {
         super();
-        this.yearsDateBase = yearsDateBase;
+        this.yearsDataBase = yearsDataBase;
     }
 
     @Override
