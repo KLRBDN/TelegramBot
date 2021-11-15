@@ -1,10 +1,13 @@
 package org.example;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class YearsDateBase {
     private static YearsDateBase instance;
+    private final static String timeZone = "GMT+05:00";
     private Map<Integer, Year> years;
 
     private YearsDateBase() {
@@ -35,5 +38,28 @@ public class YearsDateBase {
             return false;
         years.put(yearNumber, new Year(yearNumber));
         return true;
+    }
+
+    public static DayInterface getToday() {
+        var yearsDateBase = YearsDateBase.getInstance();
+        var zoneId = TimeZone.getTimeZone(timeZone).toZoneId();
+        var year = LocalDate.now(zoneId).getYear();
+        var month = LocalDate.now(zoneId).getMonthValue();
+        var day = LocalDate.now(zoneId).getDayOfMonth();
+        return yearsDateBase.getYear(year).getMonth(month).getDay(day);
+    }
+
+    public static DayInterface getDay(LocalDate date) {
+        var yearsDateBase = YearsDateBase.getInstance();
+        return yearsDateBase.getYear(date.getYear())
+                            .getMonth(date.getMonthValue())
+                            .getDay(date.getDayOfMonth());
+    }
+
+    public static DayInterface getDay(int year, int month, int day) {
+        var yearsDateBase = YearsDateBase.getInstance();
+        return yearsDateBase.getYear(year)
+                            .getMonth(month)
+                            .getDay(day);
     }
 }
