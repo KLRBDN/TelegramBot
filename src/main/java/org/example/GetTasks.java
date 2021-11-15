@@ -17,6 +17,8 @@ public class GetTasks implements BotCommand {
         var strBuilder = new StringBuilder();
         for (Task task : YearsDataBase.getToday().getTasks())
             strBuilder.append(task.name + ": " + task.timeInterval.toString() + "\n");
-        return new StandartAnswerHandler(strBuilder.toString());    
+        if (strBuilder.length() == 0)
+            return new StandartAnswerHandler("No tasks today");
+        return new StandartAnswerHandler(strBuilder.toString()); 
     }
 }

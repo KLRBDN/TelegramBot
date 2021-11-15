@@ -1,7 +1,5 @@
 package org.example;
 
-import java.util.Optional;
-
 public class Year {
     public class Month {
         private DayInterface[] days;
@@ -21,11 +19,11 @@ public class Year {
         }
 
         public DayInterface getDay(int dayNumber){
-            return dayNumber < 1 || dayNumber > days.length 
-                    ? null 
-                    : Optional
-                        .ofNullable(days[dayNumber-1])
-                        .orElse(createDay(dayNumber));
+            if (dayNumber < 1 || dayNumber > days.length)
+                return null;
+            return days[dayNumber-1] != null 
+                ? days[dayNumber-1] 
+                : createDay(dayNumber);
         }
 
         private DayInterface createDay(int dayNumber){
@@ -56,11 +54,11 @@ public class Year {
     }
 
     public Month getMonth(int monthNumber){
-        return monthNumber < 1 || monthNumber > 12
-                    ? null 
-                    : Optional
-                        .ofNullable(months[monthNumber-1])
-                        .orElse(createMonth(monthNumber));
+        if (monthNumber < 1 || monthNumber > 12)
+            return null;
+        return months[monthNumber-1] == null 
+            ? createMonth(monthNumber) 
+            : months[monthNumber-1];
     }
 
     public int getNumber(){
