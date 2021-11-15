@@ -17,10 +17,14 @@ public final class TimeInterval {
         return end;
     }
 
-    public Boolean intersects(TimeInterval interval){
+    public Boolean intersects(TimeInterval interval) {
         return (this.start.gt(interval.start) || this.start.eq(interval.start))
             && this.start.lt(interval.end)
             || this.end.gt(interval.start)
             && (this.end.lt(interval.end) || this.end.eq(interval.end));
+    }
+
+    public String toString() {
+        return start.toString() + "-" + end.toString();
     }
 }

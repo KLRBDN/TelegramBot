@@ -112,7 +112,5 @@ public class AppTest
         assertEquals(day.getTasks().size(), 2);
         assertEquals(day.getTasks().get(0).name, "first test");
         assertEquals(day.getTasks().get(1).name, "second test");
-                                     new Task(new Time(0, 0), new Time(1, 0), TaskType.overlapping, "test2", "test"));
-        assertEquals(expected, day.getTasks());
     }
 }
