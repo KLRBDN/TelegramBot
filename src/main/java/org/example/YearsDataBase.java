@@ -26,6 +26,8 @@ public class YearsDataBase {
     }
 
     public Year getYear(Integer yearNumber){
+        if (yearNumber < 100)
+            yearNumber = 2000 + yearNumber;
         if (!years.containsKey(yearNumber)){
             if (!tryAddYear(yearNumber))
                 return null;

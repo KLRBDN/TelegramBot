@@ -51,7 +51,7 @@ public class CompleteTask implements BotCommand {
     }
 
     private Boolean processDate(String date, String name) {
-        var splitted = date.split(".");
+        var splitted = date.split("\\.");
         if (splitted.length != 3)
             return false;
         var day = Integer.parseInt(splitted[0]);

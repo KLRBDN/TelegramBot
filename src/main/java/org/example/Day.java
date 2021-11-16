@@ -55,7 +55,7 @@ public class Day implements DayInterface {
     }
 
     public static DayInterface getDay(LocalDate date) {
-        return getDay(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+        return getDay(date.getDayOfMonth(), date.getMonthValue(), date.getYear());
     }
 
     public static DayInterface getDay(int day, int month, int year) {
