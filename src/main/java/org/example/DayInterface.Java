@@ -8,5 +8,7 @@ public interface DayInterface {
 
     public Boolean deleteTask(String name);
 
+    public Boolean completeTask(String name);
+
     public ArrayList<Task> getTasks();
 }

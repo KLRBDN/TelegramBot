@@ -1,8 +1,11 @@
 package org.example;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 public class Day implements DayInterface {
+    private final static String timeZone = "GMT+05:00";
     private ArrayList<Task> tasks;
     private ArrayList<Task> completedTasks;
 
@@ -44,5 +47,19 @@ public class Day implements DayInterface {
     @Override
     public ArrayList<Task> getTasks() {
         return tasks;
+    }
+
+    public static DayInterface getToday() {
+        var zoneId = TimeZone.getTimeZone(timeZone).toZoneId();
+        return getDay(LocalDate.now(zoneId));
+    }
+
+    public static DayInterface getDay(LocalDate date) {
+        return getDay(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+    }
+
+    public static DayInterface getDay(int day, int month, int year) {
+        var yearsDateBase = YearsDataBase.getInstance();
+        return yearsDateBase.getYear(year).getMonth(month).getDay(day);
     }
 }

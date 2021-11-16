@@ -40,26 +40,4 @@ public class YearsDataBase {
         return true;
     }
 
-    public static DayInterface getToday() {
-        var yearsDateBase = YearsDataBase.getInstance();
-        var zoneId = TimeZone.getTimeZone(timeZone).toZoneId();
-        var year = LocalDate.now(zoneId).getYear();
-        var month = LocalDate.now(zoneId).getMonthValue();
-        var day = LocalDate.now(zoneId).getDayOfMonth();
-        return yearsDateBase.getYear(year).getMonth(month).getDay(day);
-    }
-
-    public static DayInterface getDay(LocalDate date) {
-        var yearsDateBase = YearsDataBase.getInstance();
-        return yearsDateBase.getYear(date.getYear())
-                            .getMonth(date.getMonthValue())
-                            .getDay(date.getDayOfMonth());
-    }
-
-    public static DayInterface getDay(int year, int month, int day) {
-        var yearsDateBase = YearsDataBase.getInstance();
-        return yearsDateBase.getYear(year)
-                            .getMonth(month)
-                            .getDay(day);
-    }
 }
