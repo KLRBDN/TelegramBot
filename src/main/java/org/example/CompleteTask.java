@@ -59,16 +59,14 @@ public class CompleteTask implements BotCommand {
         var year = Integer.parseInt(splitted[2]);
 
         try {
-            yearsDataBase
-            .getYear(year)
-            .getMonth(month)
-            .getDay(day)
-            .completeTask(name);
+            return yearsDataBase.
+                    getYear(year)
+                    .getMonth(month)
+                    .getDay(day)
+                    .completeTask(name);
         } catch (NullPointerException e) {
             return false;
         }
-
-        return true;
     }
   
 }

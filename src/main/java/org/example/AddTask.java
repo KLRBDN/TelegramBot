@@ -127,7 +127,7 @@ public class AddTask implements BotCommand {
         var descriptionAsStr = description.getMessage().getText();
         var nameAsStr = name.getMessage().getText();
         if (addTask(tskType, descriptionAsStr, nameAsStr, splDateTime)){
-            return new StandartAnswerHandler("task was added");
+            return new StandartAnswerHandler("Task was added");
         }
         return exec();
     }

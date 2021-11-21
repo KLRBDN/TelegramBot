@@ -11,6 +11,7 @@ public class Day implements DayInterface {
 
     public Day() {
         tasks = new ArrayList<Task>();
+        completedTasks = new ArrayList<Task>();
     }
 
     public Boolean tryAddTask(Task task) {
@@ -28,7 +29,7 @@ public class Day implements DayInterface {
     @Override
     public Boolean deleteTask(String name) {
         for (Task task : tasks)
-            if (task.name == name) {
+            if (task.name.equals(name)) {
                 tasks.remove(task);
                 return true;
             }
@@ -37,7 +38,7 @@ public class Day implements DayInterface {
 
     public Boolean completeTask(String name) {
         for (Task task : tasks)
-            if (task.name == name) {
+            if (task.name.equals(name)) {
                 completedTasks.add(task);
                 return deleteTask(task.name);
             }
