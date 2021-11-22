@@ -25,7 +25,8 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
             new About(),
             new AddTask(this.yearsDataBase),
             new Help(botCommands),
-            new GetTasks(),
+            new GetCompletedTasks(),
+            new GetTasks(yearsDataBase),
             new CompleteTask(yearsDataBase)
         ));
     }

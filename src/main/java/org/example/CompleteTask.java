@@ -37,8 +37,6 @@ public class CompleteTask implements BotCommand {
 
     private AnswerHandler processAnswer(Update answer){
         var line = answer.getMessage().getText();
-        if (line == "stop" || line == " ")
-            return null;
         var splitted = line.split(" ");
         if (splitted.length != 2)
             return exec();
@@ -57,18 +55,15 @@ public class CompleteTask implements BotCommand {
         var day = Integer.parseInt(splitted[0]);
         var month = Integer.parseInt(splitted[1]);
         var year = Integer.parseInt(splitted[2]);
-
         try {
-            yearsDataBase
-            .getYear(year)
-            .getMonth(month)
-            .getDay(day)
-            .completeTask(name);
+            return yearsDataBase.
+                    getYear(year)
+                    .getMonth(month)
+                    .getDay(day)
+                    .completeTask(name);
         } catch (NullPointerException e) {
             return false;
         }
-
-        return true;
     }
   
 }
