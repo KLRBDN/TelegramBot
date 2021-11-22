@@ -1,19 +1,21 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class YearsDateBase {
-    private static YearsDateBase instance;
-    private Map<Integer, Year> years;
+public class YearsDataBase {
+    private static YearsDataBase instance;
+    private final Map<Integer, Year> years;
+    public static ArrayList<Object[]> completedTasks = new ArrayList<>();
 
-    private YearsDateBase() {
+    private YearsDataBase() {
         this.years = new HashMap<Integer, Year>();
     }
 
-    public static YearsDateBase getInstance(){
+    public static YearsDataBase getInstance(){
         if (instance == null){
-            instance = new YearsDateBase();
+            instance = new YearsDataBase();
         }
         return instance;
     }
@@ -23,6 +25,8 @@ public class YearsDateBase {
     }
 
     public Year getYear(Integer yearNumber){
+        if (yearNumber < 100)
+            yearNumber = 2000 + yearNumber;
         if (!years.containsKey(yearNumber)){
             if (!tryAddYear(yearNumber))
                 return null;
@@ -30,10 +34,11 @@ public class YearsDateBase {
         return years.get(yearNumber);
     }
 
-    public Boolean tryAddYear(Integer yearNumber){
+    private Boolean tryAddYear(Integer yearNumber){
         if (yearNumber < 2021 || years.containsKey(yearNumber))
             return false;
         years.put(yearNumber, new Year(yearNumber));
         return true;
     }
+
 }

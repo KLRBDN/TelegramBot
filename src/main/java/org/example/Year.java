@@ -1,11 +1,9 @@
 package org.example;
 
-import java.util.Optional;
-
 public class Year {
     public class Month {
-        private DayInterface[] days;
-        private int monthNumber;
+        private final DayInterface[] days;
+        private final int monthNumber;
         
         public Month(int monthNumber, int daysCount) {
             this.monthNumber = monthNumber;
@@ -21,11 +19,11 @@ public class Year {
         }
 
         public DayInterface getDay(int dayNumber){
-            return dayNumber < 1 || dayNumber > days.length 
-                    ? null 
-                    : Optional
-                        .ofNullable(days[dayNumber-1])
-                        .orElse(createDay(dayNumber));
+            if (dayNumber < 1 || dayNumber > days.length)
+                return null;
+            return days[dayNumber-1] != null 
+                ? days[dayNumber-1] 
+                : createDay(dayNumber);
         }
 
         private DayInterface createDay(int dayNumber){
@@ -34,10 +32,10 @@ public class Year {
         }
     }
     
-    private int number;
-    private Boolean isLeap;
-    private Month[] months;
-    private int[] daysInMonths;
+    private final int number;
+    private final Boolean isLeap;
+    private final Month[] months;
+    private final int[] daysInMonths;
 
     public Year(int number) {
         this.number = number;
@@ -56,11 +54,11 @@ public class Year {
     }
 
     public Month getMonth(int monthNumber){
-        return monthNumber < 1 || monthNumber > 12
-                    ? null 
-                    : Optional
-                        .ofNullable(months[monthNumber-1])
-                        .orElse(createMonth(monthNumber));
+        if (monthNumber < 1 || monthNumber > 12)
+            return null;
+        return months[monthNumber-1] == null 
+            ? createMonth(monthNumber) 
+            : months[monthNumber-1];
     }
 
     public int getNumber(){

@@ -1,10 +1,15 @@
 package org.example;
 
-public final class TimeInterval {
-    private Time start;
-    private Time end;
+import javax.management.InvalidAttributeValueException;
 
-    public TimeInterval(Time start, Time end) {
+public final class TimeInterval {
+    private final Time start;
+    private final Time end;
+
+    public TimeInterval(Time start, Time end) throws InvalidAttributeValueException {
+        if (start.gt(end) || start.eq(end))
+            throw new InvalidAttributeValueException(
+                    start + "shouldn't be bigger or equal" + end);
         this.start = start;
         this.end = end;
     }
@@ -17,10 +22,14 @@ public final class TimeInterval {
         return end;
     }
 
-    public Boolean intersects(TimeInterval interval){
+    public Boolean intersects(TimeInterval interval) {
         return (this.start.gt(interval.start) || this.start.eq(interval.start))
             && this.start.lt(interval.end)
             || this.end.gt(interval.start)
             && (this.end.lt(interval.end) || this.end.eq(interval.end));
+    }
+
+    public String toString() {
+        return start.toString() + "-" + end.toString();
     }
 }
