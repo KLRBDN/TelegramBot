@@ -32,7 +32,6 @@ public class AddTaskCommandTest {
         "'10.20.2021 9:00 - 10:00'|false",
     })
     public void addTaskCommandTest(String dateTime, Boolean correctFormat){
-        assert(Boolean.FALSE);
         var currentChat = new Chat();
         currentChat.setId(1L);
         var messageForUserAnswer = new Message();
@@ -75,7 +74,7 @@ public class AddTaskCommandTest {
             userAnswer.getMessage().setText("3");
             answerHandler = answerHandler.handle(userAnswer, null);
             assert(answerHandler instanceof StandartAnswerHandler);
-            assertEquals("task was added", answerHandler.getLastBotMessage());
+            assertEquals("Task was added", answerHandler.getLastBotMessage());
         }
     }
 
