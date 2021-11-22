@@ -3,34 +3,37 @@ package org.example;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.HashMap;
+
 public class AddTaskCommandTest {
     @Test
-    @ParameterizedTest
-    @CsvSource(delimiter='|', value= {
-        "'10.10.2021 9:00 - 10:00'|true",
-        "'1.1.2021 9:0 - 10:0'|true",
-        "'29.02.2024 9:00 - 10:00'|true",
-        "'29.02.2021 9:00 - 10:00'|false",
-        "'10.10.2020 9:00 - 10:00'|false",
-        "'10.10.2021 10:00 - 9:00'|false",
-        "'10.10.2021 -1:00 - 10:00'|false",
-        "'10.10.2021 9:70 - 10:00'|false",
-        "'10.10.2021 9:00 - 25:00'|false",
-        "'10.10.2021 9:00'|false",
-        "'10.10.2021 9:00-10:00'|false",
-        "'10.10.2021 9:00- 10:00'|false",
-        "'10.10.2021 9:00 : 10:00'|false",
-        "'10.2021 9:00 - 10:00'|false",
-        "'-10.10.2021 9:00 - 10:00'|false",
-        "'10.20.2021 9:00 - 10:00'|false",
-        "'10.20.2021 9:00 - 10:00'|false",
-    })
+    public void addTaskCommandTest(){
+        addTaskCommandTest("10.10.2021 9:00 - 10:00", true);
+        addTaskCommandTest("1.1.2021 9:0 - 10:0", true);
+        addTaskCommandTest("29.02.2024 9:00 - 10:00", true);
+        addTaskCommandTest("29.02.2021 9:00 - 10:00", false);
+        addTaskCommandTest("10.10.2020 9:00 - 10:00", false);
+
+        addTaskCommandTest("10.10.2021 10:00 - 9:00", false);
+        addTaskCommandTest("10.10.2021 -1:00 - 10:00", false);
+        addTaskCommandTest("10.10.2021 9:70 - 10:00", false);
+        addTaskCommandTest("10.10.2021 9:00 - 25:00", false);
+        addTaskCommandTest("10.10.2021 9:00", false);
+
+        addTaskCommandTest("10.10.2021 9:00-10:00", false);
+        addTaskCommandTest("10.10.2021 9:00- 10:00", false);
+        addTaskCommandTest("10.10.2021 9:00 : 10:00", false);
+        addTaskCommandTest("10.2021 9:00 - 10:00", false);
+        addTaskCommandTest("-10.10.2021 9:00 - 10:00", false);
+
+        addTaskCommandTest("10.20.2021 9:00 - 10:00", false);
+        addTaskCommandTest("10.20.2021 9:00 - 10:00", false);
+    }
+
     public void addTaskCommandTest(String dateTime, Boolean correctFormat){
         var currentChat = new Chat();
         currentChat.setId(1L);
