@@ -109,7 +109,6 @@ public class AddTask implements BotCommand {
                     new Time(dateTimeIntArray[3], dateTimeIntArray[4]),
                     new Time(dateTimeIntArray[5], dateTimeIntArray[6])
             );
-            if (interval == null) return null;
         }
         catch (NumberFormatException | InvalidAttributeValueException e){
             return null;
@@ -121,7 +120,7 @@ public class AddTask implements BotCommand {
     }
 
     private AnswerHandler processAnswer(Update taskType, Update description, Update name, Object[] dayAndInterval){
-        TaskType tskType = null;
+        TaskType tskType;
         var typeAsInt = -1;
         try {
             typeAsInt = Integer.parseInt(taskType.getMessage().getText());
@@ -140,7 +139,7 @@ public class AddTask implements BotCommand {
                 break;
             default:
                 return askTaskType(description, name, dayAndInterval);
-        };
+        }
         var descriptionAsStr = description.getMessage().getText();
         var nameAsStr = name.getMessage().getText();
         if (addTask(tskType, descriptionAsStr, nameAsStr, dayAndInterval)){
@@ -154,12 +153,12 @@ public class AddTask implements BotCommand {
         try {
             var day = (DayInterface)dayAndInterval[0];
             var timeInterval = (TimeInterval)dayAndInterval[1];
-            day.tryAddTask(
+            if (!day.tryAddTask(
                 new Task(
                         timeInterval.getStart(),
                         timeInterval.getEnd(),
-                        taskType, name, description)
-            );
+                        taskType, name, description)))
+                return false;
             return true;
         } catch (InvalidAttributeValueException | NullPointerException e) {
             return false;

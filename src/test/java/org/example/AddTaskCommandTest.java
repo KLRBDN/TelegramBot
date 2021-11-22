@@ -7,8 +7,6 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.util.HashMap;
-
 public class AddTaskCommandTest {
     @Test
     public void addTaskCommandTest(){
