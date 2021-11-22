@@ -1,6 +1,5 @@
 package org.example;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.management.InvalidAttributeValueException;
@@ -8,12 +7,6 @@ import javax.management.InvalidAttributeValueException;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
-    private final YearsDataBase yearsDataBase;
-
-    public AddTask(YearsDataBase yearsDataBase) {
-        super();
-        this.yearsDataBase = yearsDataBase;
-    }
 
     @Override
     public String getName() {
@@ -109,7 +102,6 @@ public class AddTask implements BotCommand {
                     new Time(dateTimeIntArray[3], dateTimeIntArray[4]),
                     new Time(dateTimeIntArray[5], dateTimeIntArray[6])
             );
-            if (interval == null) return null;
         }
         catch (NumberFormatException | InvalidAttributeValueException e){
             return null;
@@ -121,7 +113,7 @@ public class AddTask implements BotCommand {
     }
 
     private AnswerHandler processAnswer(Update taskType, Update description, Update name, Object[] dayAndInterval){
-        TaskType tskType = null;
+        TaskType tskType;
         var typeAsInt = -1;
         try {
             typeAsInt = Integer.parseInt(taskType.getMessage().getText());
@@ -140,11 +132,11 @@ public class AddTask implements BotCommand {
                 break;
             default:
                 return askTaskType(description, name, dayAndInterval);
-        };
+        }
         var descriptionAsStr = description.getMessage().getText();
         var nameAsStr = name.getMessage().getText();
         if (addTask(tskType, descriptionAsStr, nameAsStr, dayAndInterval)){
-            return new StandartAnswerHandler("Task was added");
+            return new StandardAnswerHandler("Task was added");
         }
         return exec();
     }

@@ -48,7 +48,7 @@ public class AddTaskCommandTest {
 
         answerHandler = answerHandler.handle(userAnswer, null);
 
-        assert(!(answerHandler instanceof StandartAnswerHandler));
+        assert(!(answerHandler instanceof StandardAnswerHandler));
         if (!correctFormat){
             assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00",
                     answerHandler.getLastBotMessage());
@@ -67,13 +67,13 @@ public class AddTaskCommandTest {
 
             userAnswer.getMessage().setText("wrong answer");
             answerHandler = answerHandler.handle(userAnswer, null);
-            assert(!(answerHandler instanceof StandartAnswerHandler));
+            assert(!(answerHandler instanceof StandardAnswerHandler));
             assertEquals("write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
                     answerHandler.getLastBotMessage());
 
             userAnswer.getMessage().setText("3");
             answerHandler = answerHandler.handle(userAnswer, null);
-            assert(answerHandler instanceof StandartAnswerHandler);
+            assert(answerHandler instanceof StandardAnswerHandler);
             assertEquals("Task was added", answerHandler.getLastBotMessage());
         }
     }

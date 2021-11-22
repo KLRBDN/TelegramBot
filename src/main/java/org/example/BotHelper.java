@@ -25,7 +25,7 @@ final class BotHelper {
     {
         if (update.getMessage().getText().startsWith("/") 
             || answerHandler == null)
-            answerHandler = new StandartAnswerHandler(null);
+            answerHandler = new StandardAnswerHandler(null);
         answerHandler = answerHandler.handle(update, botCommands);
 
         SendMessage message = new SendMessage();

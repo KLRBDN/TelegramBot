@@ -43,7 +43,7 @@ public class CompleteTask implements BotCommand {
         var date = splitted[0];
         var name = splitted[1];
         if (processDate(date, name)){
-            return new StandartAnswerHandler("task was completed");
+            return new StandardAnswerHandler("task was completed");
         }
         return exec();
     }

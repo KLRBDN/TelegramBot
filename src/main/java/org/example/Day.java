@@ -1,17 +1,15 @@
 package org.example;
 
-import com.fasterxml.jackson.databind.JsonSerializer;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
 public class Day implements DayInterface {
     private final static String timeZone = "GMT+05:00";
-    private ArrayList<Task> tasks;
+    private final ArrayList<Task> tasks;
 
     public Day() {
-        tasks = new ArrayList<Task>();
+        tasks = new ArrayList<>();
     }
 
     public Boolean tryAddTask(Task task) {

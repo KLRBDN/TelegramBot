@@ -2,9 +2,9 @@ package org.example;
 
 public interface BotCommand {
 
-    public String getDescription();
+    String getDescription();
 
-    public String getName();
+    String getName();
     
-    public AnswerHandler exec();
+    AnswerHandler exec();
 }
