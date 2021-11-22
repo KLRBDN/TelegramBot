@@ -22,7 +22,8 @@ public class GetTasks implements BotCommand {
     public AnswerHandler exec() {
         return new AnswerHandler() {
             public String getLastBotMessage(){
-                return "write the date of tasks in format '10.10.2021' or 'today' if you want to see tasks for today";
+                return "Write the date in which you want to view tasks in format '10.10.2021'" +
+                        " or 'today' if you want to view tasks for today";
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
@@ -45,7 +46,16 @@ public class GetTasks implements BotCommand {
                 return new StandardAnswerHandler("No tasks for this date");
             return new StandardAnswerHandler(strBuilder.toString());
         }
-        return exec();
+        return new AnswerHandler() {
+            public String getLastBotMessage(){
+                return "Error: Wrong date, please try again and write the date" +
+                        " of day where you want to view tasks in format: '10.10.2021'";
+            }
+
+            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
+                return processAnswer(answer);
+            }
+        };
     }
 
     private ArrayList<Task> processDateAndGetTasks(String date) {

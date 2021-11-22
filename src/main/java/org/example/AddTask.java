@@ -15,14 +15,14 @@ public class AddTask implements BotCommand {
 
     @Override
     public String getDescription() {
-        return "Добавляет задание";
+        return "Adds task for some date";
     }
     
     @Override
     public AnswerHandler exec() {
         return new AnswerHandler() {
             public String getLastBotMessage(){
-                return "write date and time in format: 10.10.2021 9:00 - 10:00";
+                return "Write date and time in format: 10.10.2021 9:00 - 10:00";
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
@@ -33,20 +33,30 @@ public class AddTask implements BotCommand {
 
     private AnswerHandler askTaskName(Update dateTime){
         var dayAndInterval = processDateTime(dateTime);
-        if (dayAndInterval == null)
-            return exec();
-        return new AnswerHandler() {
+        var errorAnswerHandler = new AnswerHandler() {
             public String getLastBotMessage(){
-                return "write name for your task";
+                return "Error: Wrong date, please try again and write date and" +
+                        " time of your task in format: 10.10.2021 9:00 - 10:00";
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskDescriprion(answer, dayAndInterval);
+                return askTaskName(answer);
             }
         };
+        if (dayAndInterval != null)
+            return new AnswerHandler() {
+                public String getLastBotMessage(){
+                    return "Write the name for your task";
+                }
+
+                public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
+                    return askTaskDescription(answer, dayAndInterval);
+                }
+            };
+        return errorAnswerHandler;
     }
 
-    private AnswerHandler askTaskDescriprion(Update name, Object[] dayAndInterval){
+    private AnswerHandler askTaskDescription(Update name, Object[] dayAndInterval){
         return new AnswerHandler() {
             public String getLastBotMessage(){
                 return "write description for your task";
@@ -61,7 +71,7 @@ public class AddTask implements BotCommand {
     private AnswerHandler askTaskType(Update description, Update name, Object[] dayAndInterval){
         return new AnswerHandler() {
             public String getLastBotMessage(){
-                return "write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important";
+                return "Write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important";
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
@@ -91,13 +101,14 @@ public class AddTask implements BotCommand {
         var dateTimeIntArray = new int[7];
         DayInterface day;
         TimeInterval interval;
-        try{
+        try {
             for (var i = 0; i < dateTimeIntArray.length; i++){
                 dateTimeIntArray[i] = Integer.parseInt(
                         i < 5 ? splDateAndStartTime[i] : splEndTime[i-5]);
             }
             day = Day.getDay(dateTimeIntArray[0], dateTimeIntArray[1], dateTimeIntArray[2]);
-            if (day == null) return null;
+            if (day == null)
+                return null;
             interval = new TimeInterval(
                     new Time(dateTimeIntArray[3], dateTimeIntArray[4]),
                     new Time(dateTimeIntArray[5], dateTimeIntArray[6])
@@ -114,11 +125,21 @@ public class AddTask implements BotCommand {
 
     private AnswerHandler processAnswer(Update taskType, Update description, Update name, Object[] dayAndInterval){
         TaskType tskType;
-        var typeAsInt = -1;
+        int typeAsInt;
+        var errorAnswerHandler = new AnswerHandler() {
+            public String getLastBotMessage(){
+                return "Error: Wrong value for task type. Please try again and" +
+                        " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important";
+            }
+
+            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
+                return processAnswer(answer, description, name, dayAndInterval);
+            }
+        };
         try {
             typeAsInt = Integer.parseInt(taskType.getMessage().getText());
-        } catch (Exception e) {
-            return askTaskType(description, name, dayAndInterval);
+        } catch (NumberFormatException  e) {
+            return errorAnswerHandler;
         }
         switch (typeAsInt) {
             case 1:
@@ -131,14 +152,14 @@ public class AddTask implements BotCommand {
                 tskType = TaskType.important;
                 break;
             default:
-                return askTaskType(description, name, dayAndInterval);
+                return errorAnswerHandler;
         }
         var descriptionAsStr = description.getMessage().getText();
         var nameAsStr = name.getMessage().getText();
         if (addTask(tskType, descriptionAsStr, nameAsStr, dayAndInterval)){
             return new StandardAnswerHandler("Task was added");
         }
-        return exec();
+        return errorAnswerHandler;
     }
 
     private Boolean addTask(TaskType taskType, String description, 
@@ -146,13 +167,11 @@ public class AddTask implements BotCommand {
         try {
             var day = (DayInterface)dayAndInterval[0];
             var timeInterval = (TimeInterval)dayAndInterval[1];
-            if (!day.tryAddTask(
-                new Task(
-                        timeInterval.getStart(),
-                        timeInterval.getEnd(),
-                        taskType, name, description)))
-                return false;
-            return true;
+            return day.tryAddTask(
+                    new Task(
+                            timeInterval.getStart(),
+                            timeInterval.getEnd(),
+                            taskType, name, description));
         } catch (InvalidAttributeValueException | NullPointerException e) {
             return false;
         }
