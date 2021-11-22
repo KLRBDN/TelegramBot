@@ -6,6 +6,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>telegrambot_calendar</artifactId>
+  <packaging>jar</packaging>
   <version>1.0</version>
 
   <name>telegrambot_calendar</name>

@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTaskCommandTest {
+    @Test
     @ParameterizedTest
     @CsvSource(delimiter='|', value= {
         "'10.10.2021 9:00 - 10:00'|true",
@@ -31,6 +32,7 @@ public class AddTaskCommandTest {
         "'10.20.2021 9:00 - 10:00'|false",
     })
     public void addTaskCommandTest(String dateTime, Boolean correctFormat){
+        assert(Boolean.FALSE);
         var currentChat = new Chat();
         currentChat.setId(1L);
         var messageForUserAnswer = new Message();
