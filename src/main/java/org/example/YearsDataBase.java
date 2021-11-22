@@ -1,6 +1,7 @@
 package org.example;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -9,6 +10,7 @@ public class YearsDataBase {
     private static YearsDataBase instance;
     private final static String timeZone = "GMT+05:00";
     private Map<Integer, Year> years;
+    public static ArrayList<Object[]> completedTasks = new ArrayList<>();
 
     private YearsDataBase() {
         this.years = new HashMap<Integer, Year>();

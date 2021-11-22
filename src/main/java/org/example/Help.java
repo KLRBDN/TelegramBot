@@ -24,8 +24,11 @@ public class Help implements BotCommand {
     @Override
     public AnswerHandler exec() {
         var strBuilder = new StringBuilder();
-        for (var exemplaire : botCommands.values())
-            strBuilder.append(exemplaire.getName() + " - " + exemplaire.getDescription() + "\n");
+        for (var exemplar : botCommands.values())
+            strBuilder.append(exemplar.getName())
+                      .append(" - ")
+                      .append(exemplar.getDescription())
+                      .append("\n");
         return new StandartAnswerHandler(strBuilder.toString());
     } 
 }
