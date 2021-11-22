@@ -1,5 +1,6 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.management.InvalidAttributeValueException;
@@ -38,8 +39,8 @@ public class AddTask implements BotCommand {
     }
 
     private AnswerHandler askTaskName(Update dateTime){
-        var splDateTime = processDateTime(dateTime);
-        if (splDateTime == null)
+        var dayAndInterval = processDateTime(dateTime);
+        if (dayAndInterval == null)
             return exec();
         return new AnswerHandler() {
             public String getLastBotMessage(){
@@ -47,38 +48,40 @@ public class AddTask implements BotCommand {
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskDescriprion(answer, splDateTime);
+                return askTaskDescriprion(answer, dayAndInterval);
             }
         };
     }
 
-    private AnswerHandler askTaskDescriprion(Update name, String[] splDateTime){
+    private AnswerHandler askTaskDescriprion(Update name, Object[] dayAndInterval){
         return new AnswerHandler() {
             public String getLastBotMessage(){
                 return "write description for your task";
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskType(answer, name, splDateTime);
+                return askTaskType(answer, name, dayAndInterval);
             }
         };
     }
 
-    private AnswerHandler askTaskType(Update description, Update name, String[] splDateTime){
+    private AnswerHandler askTaskType(Update description, Update name, Object[] dayAndInterval){
         return new AnswerHandler() {
             public String getLastBotMessage(){
                 return "write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important";
             }
 
             public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return processAnswer(answer, description, name, splDateTime);
+                return processAnswer(answer, description, name, dayAndInterval);
             }
         };
     }
 
-    private String[] processDateTime(Update dateTime){
-        var interval = dateTime.getMessage().getText();
-        var splitted = interval.split(" - ");
+    private Object[] processDateTime(Update dateTimeMessage){
+        var splitted = dateTimeMessage
+                .getMessage()
+                .getText()
+                .split(" - ");
         if (splitted.length != 2)
             return null;
         var dateAndStartTime = splitted[0];
@@ -91,25 +94,39 @@ public class AddTask implements BotCommand {
         var splEndTime = endTime.split(":");
         if (splEndTime.length != 2)
             return null;
-        
-        var splDateTime = new String[7];
-        for (var i = 0; i < splDateTime.length; i++){
-            if (i < 5)
-                splDateTime[i] = splDateAndStartTime[i];
-            else
-                splDateTime[i] = splEndTime[i-5];
-        }
 
-        return splDateTime;
+        var dateTimeIntArray = new int[7];
+        DayInterface day;
+        TimeInterval interval;
+        try{
+            for (var i = 0; i < dateTimeIntArray.length; i++){
+                dateTimeIntArray[i] = Integer.parseInt(
+                        i < 5 ? splDateAndStartTime[i] : splEndTime[i-5]);
+            }
+            day = Day.getDay(dateTimeIntArray[0], dateTimeIntArray[1], dateTimeIntArray[2]);
+            if (day == null) return null;
+            interval = new TimeInterval(
+                    new Time(dateTimeIntArray[3], dateTimeIntArray[4]),
+                    new Time(dateTimeIntArray[5], dateTimeIntArray[6])
+            );
+            if (interval == null) return null;
+        }
+        catch (NumberFormatException | InvalidAttributeValueException e){
+            return null;
+        }
+        var dayAndInterval = new Object[2];
+        dayAndInterval[0] = day;
+        dayAndInterval[1] = interval;
+        return dayAndInterval;
     }
 
-    private AnswerHandler processAnswer(Update taskType, Update description, Update name, String[] splDateTime){
+    private AnswerHandler processAnswer(Update taskType, Update description, Update name, Object[] dayAndInterval){
         TaskType tskType = null;
         var typeAsInt = -1;
         try {
             typeAsInt = Integer.parseInt(taskType.getMessage().getText());
         } catch (Exception e) {
-            return askTaskType(description, name, splDateTime);
+            return askTaskType(description, name, dayAndInterval);
         }
         switch (typeAsInt) {
             case 1:
@@ -122,44 +139,30 @@ public class AddTask implements BotCommand {
                 tskType = TaskType.important;
                 break;
             default:
-                return askTaskType(description, name, splDateTime);
+                return askTaskType(description, name, dayAndInterval);
         };
         var descriptionAsStr = description.getMessage().getText();
         var nameAsStr = name.getMessage().getText();
-        if (addTask(tskType, descriptionAsStr, nameAsStr, splDateTime)){
+        if (addTask(tskType, descriptionAsStr, nameAsStr, dayAndInterval)){
             return new StandartAnswerHandler("task was added");
         }
         return exec();
     }
 
     private Boolean addTask(TaskType taskType, String description, 
-                            String name, String[] splDateTime) {
-        if (splDateTime.length != 7)
-            return false;
-        var day = Integer.parseInt(splDateTime[0]);
-        var month = Integer.parseInt(splDateTime[1]);
-        var year = Integer.parseInt(splDateTime[2]);
-        var hoursStart = Integer.parseInt(splDateTime[3]);
-        var minutesStart = Integer.parseInt(splDateTime[4]);
-
-        var hoursEnd = Integer.parseInt(splDateTime[5]);
-        var minutesEnd = Integer.parseInt(splDateTime[6]);
-
+                            String name, Object[] dayAndInterval) {
         try {
-            yearsDataBase
-            .getYear(year)
-            .getMonth(month)
-            .getDay(day)
-            .tryAddTask(
+            var day = (DayInterface)dayAndInterval[0];
+            var timeInterval = (TimeInterval)dayAndInterval[1];
+            day.tryAddTask(
                 new Task(
-                    new Time(hoursStart, minutesStart), 
-                    new Time(hoursEnd, minutesEnd), 
-                    taskType, name, description)
+                        timeInterval.getStart(),
+                        timeInterval.getEnd(),
+                        taskType, name, description)
             );
+            return true;
         } catch (InvalidAttributeValueException | NullPointerException e) {
             return false;
         }
-
-        return true;
     }
 }

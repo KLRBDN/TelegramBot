@@ -1,5 +1,7 @@
 package org.example;
 
+import com.fasterxml.jackson.databind.JsonSerializer;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.TimeZone;
@@ -60,6 +62,12 @@ public class Day implements DayInterface {
 
     public static DayInterface getDay(int day, int month, int year) {
         var yearsDateBase = YearsDataBase.getInstance();
-        return yearsDateBase.getYear(year).getMonth(month).getDay(day);
+        var yearObject = yearsDateBase.getYear(year);
+        if (yearObject == null)
+            return null;
+        var monthObject = yearObject.getMonth(month);
+        if (monthObject == null)
+            return null;
+        return monthObject.getDay(day);
     }
 }

@@ -1,10 +1,15 @@
 package org.example;
 
+import javax.management.InvalidAttributeValueException;
+
 public final class TimeInterval {
     private Time start;
     private Time end;
 
-    public TimeInterval(Time start, Time end) {
+    public TimeInterval(Time start, Time end) throws InvalidAttributeValueException {
+        if (start.gt(end) || start.eq(end))
+            throw new InvalidAttributeValueException(
+                    start + "shouldn't be bigger or equal" + end);
         this.start = start;
         this.end = end;
     }

@@ -30,31 +30,51 @@ public class AddTaskCommandTest {
         "'10.20.2021 9:00 - 10:00'|false",
         "'10.20.2021 9:00 - 10:00'|false",
     })
-    public void addTaskCommandTest(String dateTime, Boolean ok){
-        var chat = new Chat();
-        chat.setId(1L);
-        var myMessage = new Message();
-        myMessage.setText(dateTime);
-        myMessage.setChat(chat);
-        var answer = new Update();
-        answer.setMessage(myMessage);
+    public void addTaskCommandTest(String dateTime, Boolean correctFormat){
+        var currentChat = new Chat();
+        currentChat.setId(1L);
+        var messageForUserAnswer = new Message();
+        messageForUserAnswer.setText(dateTime);
+        messageForUserAnswer.setChat(currentChat);
+        var userAnswer = new Update();
+        userAnswer.setMessage(messageForUserAnswer);
 
-        var taskCmd = new AddTask(YearsDataBase.getInstance());
-        var handler1 = taskCmd.exec();
+        var taskCommand = new AddTask(YearsDataBase.getInstance());
+        var answerHandler = taskCommand.exec();
 
-        assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00", handler1.getLastBotMessage());
+        assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00",
+                answerHandler.getLastBotMessage());
 
-        var handler2 = handler1.handle(answer, null);
+        answerHandler = answerHandler.handle(userAnswer, null);
 
-        if (ok) {
-            assert(handler2 instanceof StandartAnswerHandler);
-            assertEquals("task was added", handler2.getLastBotMessage());
+        assert(!(answerHandler instanceof StandartAnswerHandler));
+        if (!correctFormat){
+            assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00",
+                    answerHandler.getLastBotMessage());
         }
         else {
-            assert(!(handler2 instanceof StandartAnswerHandler));
-            assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00", handler2.getLastBotMessage());
+            assertEquals("write name for your task", answerHandler.getLastBotMessage());
+
+            userAnswer.getMessage().setText("name");
+            answerHandler = answerHandler.handle(userAnswer, null);
+            assertEquals("write description for your task", answerHandler.getLastBotMessage());
+
+            userAnswer.getMessage().setText("description");
+            answerHandler = answerHandler.handle(userAnswer, null);
+            assertEquals("write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
+                    answerHandler.getLastBotMessage());
+
+            userAnswer.getMessage().setText("wrong answer");
+            answerHandler = answerHandler.handle(userAnswer, null);
+            assert(!(answerHandler instanceof StandartAnswerHandler));
+            assertEquals("write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
+                    answerHandler.getLastBotMessage());
+
+            userAnswer.getMessage().setText("3");
+            answerHandler = answerHandler.handle(userAnswer, null);
+            assert(answerHandler instanceof StandartAnswerHandler);
+            assertEquals("task was added", answerHandler.getLastBotMessage());
         }
-        
     }
 
     @Test
