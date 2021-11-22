@@ -46,7 +46,7 @@ public class AddTask implements BotCommand {
         };
     }
 
-    private AnswerHandler askTaskDescriprion(Update name, Object[] dayAndInterval){
+    protected AnswerHandler askTaskDescriprion(Update name, Object[] dayAndInterval){
         return new AnswerHandler() {
             public String getLastBotMessage(){
                 return "write description for your task";
@@ -58,7 +58,7 @@ public class AddTask implements BotCommand {
         };
     }
 
-    private AnswerHandler askTaskType(Update description, Update name, Object[] dayAndInterval){
+    protected AnswerHandler askTaskType(Update description, Update name, Object[] dayAndInterval){
         return new AnswerHandler() {
             public String getLastBotMessage(){
                 return "write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important";
@@ -112,7 +112,7 @@ public class AddTask implements BotCommand {
         return dayAndInterval;
     }
 
-    private AnswerHandler processAnswer(Update taskType, Update description, Update name, Object[] dayAndInterval){
+    protected AnswerHandler processAnswer(Update taskType, Update description, Update name, Object[] dayAndInterval){
         TaskType tskType;
         var typeAsInt = -1;
         try {
@@ -141,7 +141,7 @@ public class AddTask implements BotCommand {
         return exec();
     }
 
-    private Boolean addTask(TaskType taskType, String description, 
+    protected Boolean addTask(TaskType taskType, String description,
                             String name, Object[] dayAndInterval) {
         try {
             var day = (DayInterface)dayAndInterval[0];

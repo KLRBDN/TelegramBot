@@ -31,7 +31,7 @@ public class Year {
         }
 
         private DayInterface createDay(int dayNumber){
-            days[dayNumber-1] = new Day(LocalDate.of(year, number, dayNumber));
+            days[dayNumber-1] = new Day(LocalDate.of(year, monthNumber, dayNumber));
             return days[dayNumber-1];
         }
     }
