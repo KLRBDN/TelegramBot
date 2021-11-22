@@ -42,8 +42,8 @@ public class GetTasks implements BotCommand {
                           .append(task.timeInterval.toString())
                           .append("\n");
             if (strBuilder.length() == 0)
-                return new StandartAnswerHandler("No tasks for this date");
-            return new StandartAnswerHandler(strBuilder.toString());
+                return new StandardAnswerHandler("No tasks for this date");
+            return new StandardAnswerHandler(strBuilder.toString());
         }
         return exec();
     }
@@ -77,6 +77,9 @@ public class GetTasks implements BotCommand {
     }
 
     public static ArrayList<Task> getDayTasks(int day, int month, int year) {
-        return Day.getDay(day, month, year).getTasks();
+        var date = Day.getDay(day, month, year);
+        if (date != null)
+            return date.getTasks();
+        return null;
     }
 }

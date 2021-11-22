@@ -1,14 +1,11 @@
 package org.example;
 
-import javax.management.InvalidAttributeValueException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class YearsDataBase {
     private static YearsDataBase instance;
-    private final static String timeZone = "GMT+05:00";
     private final Map<Integer, Year> years;
     public static ArrayList<Object[]> completedTasks = new ArrayList<>();
 

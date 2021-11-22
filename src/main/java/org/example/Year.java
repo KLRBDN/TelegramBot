@@ -2,8 +2,8 @@ package org.example;
 
 public class Year {
     public class Month {
-        private DayInterface[] days;
-        private int monthNumber;
+        private final DayInterface[] days;
+        private final int monthNumber;
         
         public Month(int monthNumber, int daysCount) {
             this.monthNumber = monthNumber;
@@ -32,10 +32,10 @@ public class Year {
         }
     }
     
-    private int number;
-    private Boolean isLeap;
-    private Month[] months;
-    private int[] daysInMonths;
+    private final int number;
+    private final Boolean isLeap;
+    private final Month[] months;
+    private final int[] daysInMonths;
 
     public Year(int number) {
         this.number = number;

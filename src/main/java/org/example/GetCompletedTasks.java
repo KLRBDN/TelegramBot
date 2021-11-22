@@ -25,7 +25,7 @@ public class GetCompletedTasks implements BotCommand{
                     .append("\n");
         }
         if (strBuilder.length() == 0)
-            return new StandartAnswerHandler("No tasks completed");
-        return new StandartAnswerHandler(strBuilder.toString());
+            return new StandardAnswerHandler("No tasks completed");
+        return new StandardAnswerHandler(strBuilder.toString());
     }
 }

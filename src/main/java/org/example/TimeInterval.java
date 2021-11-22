@@ -3,8 +3,8 @@ package org.example;
 import javax.management.InvalidAttributeValueException;
 
 public final class TimeInterval {
-    private Time start;
-    private Time end;
+    private final Time start;
+    private final Time end;
 
     public TimeInterval(Time start, Time end) throws InvalidAttributeValueException {
         if (start.gt(end) || start.eq(end))

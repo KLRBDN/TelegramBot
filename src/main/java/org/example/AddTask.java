@@ -1,6 +1,5 @@
 package org.example;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.management.InvalidAttributeValueException;
@@ -8,12 +7,6 @@ import javax.management.InvalidAttributeValueException;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
-    private final YearsDataBase yearsDataBase;
-
-    public AddTask(YearsDataBase yearsDataBase) {
-        super();
-        this.yearsDataBase = yearsDataBase;
-    }
 
     @Override
     public String getName() {
@@ -143,7 +136,7 @@ public class AddTask implements BotCommand {
         var descriptionAsStr = description.getMessage().getText();
         var nameAsStr = name.getMessage().getText();
         if (addTask(tskType, descriptionAsStr, nameAsStr, dayAndInterval)){
-            return new StandartAnswerHandler("Task was added");
+            return new StandardAnswerHandler("Task was added");
         }
         return exec();
     }

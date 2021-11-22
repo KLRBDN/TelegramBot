@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public interface DayInterface {
 
-    public Boolean tryAddTask(Task task);
+    Boolean tryAddTask(Task task);
 
-    public Boolean deleteTask(String name);
+    Boolean deleteTask(String name);
 
-    public Boolean completeTask(String name);
+    Boolean completeTask(String name);
 
-    public ArrayList<Task> getTasks();
+    ArrayList<Task> getTasks();
 }

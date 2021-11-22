@@ -29,6 +29,6 @@ public class Help implements BotCommand {
                       .append(" - ")
                       .append(exemplar.getDescription())
                       .append("\n");
-        return new StandartAnswerHandler(strBuilder.toString());
+        return new StandardAnswerHandler(strBuilder.toString());
     } 
 }

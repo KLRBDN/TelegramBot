@@ -14,6 +14,6 @@ public class About implements BotCommand {
 
     @Override
     public AnswerHandler exec() {
-        return new StandartAnswerHandler("Создатели: Михаил Яскевич, Павел Овчинников");
+        return new StandardAnswerHandler("Создатели: Михаил Яскевич, Павел Овчинников");
     }
 }

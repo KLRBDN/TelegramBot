@@ -4,10 +4,10 @@ import java.util.Map;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public class StandartAnswerHandler implements AnswerHandler{
-    private String lastBotMessage;
+public class StandardAnswerHandler implements AnswerHandler{
+    private final String lastBotMessage;
 
-    public StandartAnswerHandler(String lastBotMessage) {
+    public StandardAnswerHandler(String lastBotMessage) {
         super();
         this.lastBotMessage = lastBotMessage;
     }
@@ -21,6 +21,6 @@ public class StandartAnswerHandler implements AnswerHandler{
     public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands) {
         return botCommands.containsKey(answer.getMessage().getText())
             ? botCommands.get(answer.getMessage().getText()).exec()
-            : new StandartAnswerHandler("wrong command");
+            : new StandardAnswerHandler("wrong command");
     }
 }

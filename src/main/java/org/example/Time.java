@@ -3,8 +3,8 @@ package org.example;
 import javax.management.InvalidAttributeValueException;
 
 public final class Time{
-    private int hours;
-    private int minutes;
+    private final int hours;
+    private final int minutes;
 
     public Time(int hours, int minutes) throws InvalidAttributeValueException {
         if (hours < 0 || hours > 24 || minutes < 0 || minutes > 60)
