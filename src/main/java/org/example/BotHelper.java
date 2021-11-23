@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 final class BotHelper {
-    private static AnswerHandler answerHandler;
+    private static BasicAnswerHandler answerHandler;
 
     public static void fillBotCommandsDictionary(Map<String, BotCommand> mapToFill, List<BotCommand> commandsToPut)
     {    

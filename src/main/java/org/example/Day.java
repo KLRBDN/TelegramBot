@@ -7,9 +7,15 @@ import java.util.TimeZone;
 public class Day implements DayInterface {
     private final static String timeZone = "GMT+05:00";
     private final ArrayList<Task> tasks;
+    private final LocalDate date;
 
-    public Day() {
+    public Day(LocalDate date) {
         tasks = new ArrayList<>();
+        this.date = date;
+    }
+
+    public LocalDate getDate(){
+        return date;
     }
 
     public Boolean tryAddTask(Task task) {

@@ -13,7 +13,7 @@ public class GetCompletedTasks implements BotCommand{
     }
 
     @Override
-    public AnswerHandler exec() {
+    public BasicAnswerHandler exec() {
         var strBuilder = new StringBuilder();
         for (var pair : YearsDataBase.completedTasks) {
             var task = (Task) pair[0];

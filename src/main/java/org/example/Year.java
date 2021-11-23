@@ -1,11 +1,15 @@
 package org.example;
 
+import java.time.LocalDate;
+
 public class Year {
     public class Month {
         private final DayInterface[] days;
+        private final int year;
         private final int monthNumber;
         
-        public Month(int monthNumber, int daysCount) {
+        public Month(int year, int monthNumber, int daysCount) {
+            this.year = year;
             this.monthNumber = monthNumber;
             this.days = new DayInterface[daysCount];
         }
@@ -27,7 +31,7 @@ public class Year {
         }
 
         private DayInterface createDay(int dayNumber){
-            days[dayNumber-1] = new Day();
+            days[dayNumber-1] = new Day(LocalDate.of(year, monthNumber, dayNumber));
             return days[dayNumber-1];
         }
     }
@@ -70,7 +74,8 @@ public class Year {
     }
 
     public Month createMonth(int monthNumber){
-        months[monthNumber-1] = new Month(monthNumber, daysInMonths[monthNumber-1]);
+        months[monthNumber-1] = new Month(
+                number, monthNumber, daysInMonths[monthNumber-1]);
         return months[monthNumber-1];
     }
 }

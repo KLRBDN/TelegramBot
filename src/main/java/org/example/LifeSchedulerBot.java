@@ -22,12 +22,13 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
         this.botCommands = new HashMap<String, BotCommand>();
         this.yearsDataBase = YearsDataBase.getInstance();
         BotHelper.fillBotCommandsDictionary(botCommands, Arrays.asList(
-            new About(),
-            new AddTask(),
-            new Help(botCommands),
-            new GetCompletedTasks(),
-            new GetTasks(),
-            new CompleteTask(yearsDataBase)
+                new About(),
+                new AddTask(),
+                new Help(botCommands),
+                new GetCompletedTasks(),
+                new GetTasks(),
+                new CompleteTask(yearsDataBase),
+                new AddRepetitiveTask()
         ));
     }
 

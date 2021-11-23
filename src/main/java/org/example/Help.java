@@ -22,7 +22,7 @@ public class Help implements BotCommand {
     }
 
     @Override
-    public AnswerHandler exec() {
+    public BasicAnswerHandler exec() {
         var strBuilder = new StringBuilder();
         for (var exemplar : botCommands.values())
             strBuilder.append(exemplar.getName())

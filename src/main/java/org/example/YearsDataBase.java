@@ -10,7 +10,7 @@ public class YearsDataBase {
     public static ArrayList<Object[]> completedTasks = new ArrayList<>();
 
     private YearsDataBase() {
-        this.years = new HashMap<Integer, Year>();
+        this.years = new HashMap<>();
     }
 
     public static YearsDataBase getInstance(){
