@@ -33,32 +33,18 @@ public class AddRepetitiveTask extends AddTask {
     }
 
     @Override
-    public AnswerHandler exec() {
-        return new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "write day of week to add repetitive task (M, T1, W, T2, F, S1, S2) and time in format 9:00 - 10:00." +
-                        " Example 'T1 9:00 - 10:00'";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskName(answer);
-            }
-        };
+    public BasicAnswerHandler exec() {
+        return new BasicAnswerHandler(
+                "write day of week to add repetitive task (M, T1, W, T2, F, S1, S2) " +
+                        "and time in format 9:00 - 10:00. Example 'T1 9:00 - 10:00'",
+                this::askTaskName);
     }
 
-    private AnswerHandler askTaskName(Update dateTime){
-        var dayAndInterval = processDayAndInterval(dateTime);
+    private BasicAnswerHandler askTaskName(Update dateTime){
+        dayAndInterval = processDayAndInterval(dateTime);
         if (dayAndInterval == null)
             return exec();
-        return new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "write name for your task";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskDescriprion(answer, dayAndInterval);
-            }
-        };
+        return new BasicAnswerHandler("write name for your task", this::askTaskDescription);
     }
 
     @Override

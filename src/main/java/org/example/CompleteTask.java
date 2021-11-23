@@ -1,7 +1,5 @@
 package org.example;
 
-import java.util.Map;
-
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class CompleteTask implements BotCommand {
@@ -23,19 +21,13 @@ public class CompleteTask implements BotCommand {
     }
 
     @Override
-    public AnswerHandler exec() {
-        return new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "write date of completed task and its name in format: 10.10.2021 taskname";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return processAnswer(answer);
-            }
-        };
+    public BasicAnswerHandler exec() {
+        return new BasicAnswerHandler(
+                "write date of completed task and its name in format: 10.10.2021 taskname",
+                this::processAnswer);
     }
 
-    private AnswerHandler processAnswer(Update answer){
+    private BasicAnswerHandler processAnswer(Update answer){
         var line = answer.getMessage().getText();
         var splitted = line.split(" ");
         if (splitted.length != 2)

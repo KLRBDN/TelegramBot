@@ -38,7 +38,7 @@ public class AppTest
         var expected = new HashMap<String, BotCommand>();
         var about = new About();
         var commandsToPut = Arrays.asList(
-            (BotCommand)about,
+            about,
             (BotCommand)about
         );
         var actual = new HashMap<String, BotCommand>();
@@ -53,6 +53,7 @@ public class AppTest
     public void adddingNullCommandWontCrashProgram()
     {
         var expected = new HashMap<String, BotCommand>();
+        //var commandsToPut = List.of((BotCommand)null) пробрасывает java.lang.NullPointerException
         var commandsToPut = Arrays.asList(
             (BotCommand)null
         );

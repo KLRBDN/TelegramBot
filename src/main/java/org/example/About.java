@@ -1,7 +1,6 @@
 package org.example;
 
 public class About implements BotCommand {
-
     @Override
     public String getDescription() {
         return "Возвращает имена создателей бота";
@@ -13,7 +12,7 @@ public class About implements BotCommand {
     }
 
     @Override
-    public AnswerHandler exec() {
+    public BasicAnswerHandler exec() {
         return new StandardAnswerHandler("Создатели: Михаил Яскевич, Павел Овчинников");
     }
 }

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class RepetitiveTasks {
-    private static Map<DayOfWeek, ArrayList<Task>> repetitiveTasks = new HashMap<DayOfWeek, ArrayList<Task>>();
+    private static final Map<DayOfWeek, ArrayList<Task>> repetitiveTasks = new HashMap<>();
 
     public static ArrayList<Task> getTasksFor(DayOfWeek day){
         return repetitiveTasks.get(day);
@@ -15,7 +15,7 @@ public final class RepetitiveTasks {
     public static Boolean tryAddRepetitiveTask(DayOfWeek day, Task task){
         var tasks = repetitiveTasks.get(day);
         if (tasks == null){
-            tasks = new ArrayList<Task>();
+            tasks = new ArrayList<>();
             tasks.add(task);
             repetitiveTasks.put(day, tasks);
         }

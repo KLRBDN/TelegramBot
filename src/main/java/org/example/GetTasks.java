@@ -4,7 +4,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class GetTasks implements BotCommand {
 
@@ -19,19 +18,13 @@ public class GetTasks implements BotCommand {
     }
 
     @Override
-    public AnswerHandler exec() {
-        return new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "write the date of tasks in format '10.10.2021' or 'today' if you want to see tasks for today";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return processAnswer(answer);
-            }
-        };
+    public BasicAnswerHandler exec() {
+        return new BasicAnswerHandler(
+                "write the date of tasks in format '10.10.2021' or 'today' if you want to see tasks for today",
+                this::processAnswer);
     }
 
-    private AnswerHandler processAnswer(Update answer){
+    private BasicAnswerHandler processAnswer(Update answer){
         var line = answer.getMessage().getText();
         var tasks = processDateAndGetTasks(line);
         if (tasks != null) {

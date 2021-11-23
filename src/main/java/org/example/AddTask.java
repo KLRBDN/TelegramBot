@@ -1,12 +1,13 @@
 package org.example;
 
-import java.util.Map;
-
 import javax.management.InvalidAttributeValueException;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
+    protected Object[] dayAndInterval;
+    protected Update name;
+    protected Update description;
 
     @Override
     public String getName() {
@@ -19,55 +20,33 @@ public class AddTask implements BotCommand {
     }
     
     @Override
-    public AnswerHandler exec() {
-        return new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "write date and time in format: 10.10.2021 9:00 - 10:00";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskName(answer);
-            }
-        };
+    public BasicAnswerHandler exec() {
+        return new BasicAnswerHandler(
+                "write date and time in format: 10.10.2021 9:00 - 10:00",
+                this::askTaskName);
     }
 
-    private AnswerHandler askTaskName(Update dateTime){
-        var dayAndInterval = processDateTime(dateTime);
+    private BasicAnswerHandler askTaskName(Update dateTime){
+        dayAndInterval = processDateTime(dateTime);
         if (dayAndInterval == null)
             return exec();
-        return new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "write name for your task";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskDescriprion(answer, dayAndInterval);
-            }
-        };
+        return new BasicAnswerHandler(
+                "write name for your task",
+                this::askTaskDescription);
     }
 
-    protected AnswerHandler askTaskDescriprion(Update name, Object[] dayAndInterval){
-        return new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "write description for your task";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskType(answer, name, dayAndInterval);
-            }
-        };
+    protected BasicAnswerHandler askTaskDescription(Update name){
+        this.name = name;
+        return new BasicAnswerHandler(
+                "write description for your task",
+                this::askTaskType);
     }
 
-    protected AnswerHandler askTaskType(Update description, Update name, Object[] dayAndInterval){
-        return new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return processAnswer(answer, description, name, dayAndInterval);
-            }
-        };
+    protected BasicAnswerHandler askTaskType(Update description){
+        this.description = description;
+        return new BasicAnswerHandler(
+                "write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
+                this::processAnswer);
     }
 
     private Object[] processDateTime(Update dateTimeMessage){
@@ -112,13 +91,13 @@ public class AddTask implements BotCommand {
         return dayAndInterval;
     }
 
-    protected AnswerHandler processAnswer(Update taskType, Update description, Update name, Object[] dayAndInterval){
+    protected BasicAnswerHandler processAnswer(Update taskType){
         TaskType tskType;
         var typeAsInt = -1;
         try {
             typeAsInt = Integer.parseInt(taskType.getMessage().getText());
         } catch (Exception e) {
-            return askTaskType(description, name, dayAndInterval);
+            return askTaskType(this.description);
         }
         switch (typeAsInt) {
             case 1:
@@ -131,7 +110,7 @@ public class AddTask implements BotCommand {
                 tskType = TaskType.important;
                 break;
             default:
-                return askTaskType(description, name, dayAndInterval);
+                return askTaskType(this.description);
         }
         var descriptionAsStr = description.getMessage().getText();
         var nameAsStr = name.getMessage().getText();
@@ -146,14 +125,12 @@ public class AddTask implements BotCommand {
         try {
             var day = (DayInterface)dayAndInterval[0];
             var timeInterval = (TimeInterval)dayAndInterval[1];
-            if (!day.tryAddTask(
-                new Task(
-                        timeInterval.getStart(),
-                        timeInterval.getEnd(),
-                        taskType, name, description)))
-                return false;
-            return true;
-        } catch (InvalidAttributeValueException | NullPointerException e) {
+            return day.tryAddTask(
+                    new Task(
+                            timeInterval.getStart(),
+                            timeInterval.getEnd(),
+                            taskType, name, description));
+        } catch (ClassCastException | InvalidAttributeValueException | NullPointerException e) {
             return false;
         }
     }
