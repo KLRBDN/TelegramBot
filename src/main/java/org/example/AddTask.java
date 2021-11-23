@@ -16,7 +16,7 @@ public class AddTask implements BotCommand {
 
     @Override
     public String getDescription() {
-        return "Добавляет задание";
+        return "Adds task for some date";
     }
     
     @Override
@@ -28,11 +28,18 @@ public class AddTask implements BotCommand {
 
     private BasicAnswerHandler askTaskName(Update dateTime){
         dayAndInterval = processDateTime(dateTime);
-        if (dayAndInterval == null)
-            return exec();
+        var errorAnswerHandler = new AnswerHandler() {
+            public String getLastBotMessage(){
         return new BasicAnswerHandler(
                 "write name for your task",
                 this::askTaskDescription);
+
+            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
+                return askTaskName(answer);
+            }
+        };
+        if (dayAndInterval != null)
+        return errorAnswerHandler;
     }
 
     protected BasicAnswerHandler askTaskDescription(Update name){
@@ -70,13 +77,14 @@ public class AddTask implements BotCommand {
         var dateTimeIntArray = new int[7];
         DayInterface day;
         TimeInterval interval;
-        try{
+        try {
             for (var i = 0; i < dateTimeIntArray.length; i++){
                 dateTimeIntArray[i] = Integer.parseInt(
                         i < 5 ? splDateAndStartTime[i] : splEndTime[i-5]);
             }
             day = Day.getDay(dateTimeIntArray[0], dateTimeIntArray[1], dateTimeIntArray[2]);
-            if (day == null) return null;
+            if (day == null)
+                return null;
             interval = new TimeInterval(
                     new Time(dateTimeIntArray[3], dateTimeIntArray[4]),
                     new Time(dateTimeIntArray[5], dateTimeIntArray[6])
@@ -93,10 +101,20 @@ public class AddTask implements BotCommand {
 
     protected BasicAnswerHandler processAnswer(Update taskType){
         TaskType tskType;
-        var typeAsInt = -1;
+        int typeAsInt;
+        var errorAnswerHandler = new AnswerHandler() {
+            public String getLastBotMessage(){
+                return "Error: Wrong value for task type. Please try again and" +
+                        " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important";
+            }
+
+            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
+                return processAnswer(answer, description, name, dayAndInterval);
+            }
+        };
         try {
             typeAsInt = Integer.parseInt(taskType.getMessage().getText());
-        } catch (Exception e) {
+        } catch (NumberFormatException  e) {
             return askTaskType(this.description);
         }
         switch (typeAsInt) {
@@ -110,14 +128,14 @@ public class AddTask implements BotCommand {
                 tskType = TaskType.important;
                 break;
             default:
-                return askTaskType(this.description);
+                return errorAnswerHandler;
         }
         var descriptionAsStr = description.getMessage().getText();
         var nameAsStr = name.getMessage().getText();
         if (addTask(tskType, descriptionAsStr, nameAsStr, dayAndInterval)){
             return new StandardAnswerHandler("Task was added");
         }
-        return exec();
+        return errorAnswerHandler;
     }
 
     protected Boolean addTask(TaskType taskType, String description,

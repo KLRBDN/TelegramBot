@@ -30,14 +30,23 @@ public class CompleteTask implements BotCommand {
     private BasicAnswerHandler processAnswer(Update answer){
         var line = answer.getMessage().getText();
         var splitted = line.split(" ");
-        if (splitted.length != 2)
-            return exec();
-        var date = splitted[0];
-        var name = splitted[1];
-        if (processDate(date, name)){
-            return new StandardAnswerHandler("task was completed");
+        if (splitted.length == 2) {
+            var date = splitted[0];
+            var name = splitted[1];
+            if (processDate(date, name)) {
+                return new StandardAnswerHandler("task was completed");
+            }
         }
-        return exec();
+        return new AnswerHandler() {
+            public String getLastBotMessage(){
+                return "Error: Wrong date or task name, please try again and write the date" +
+                        " of completed task and its name in format: 10.10.2021 name_of_task";
+            }
+
+            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
+                return processAnswer(answer);
+            }
+        };
     }
 
     private Boolean processDate(String date, String name) {
