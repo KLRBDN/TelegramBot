@@ -37,16 +37,10 @@ public class CompleteTask implements BotCommand {
                 return new StandardAnswerHandler("task was completed");
             }
         }
-        return new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "Error: Wrong date or task name, please try again and write the date" +
-                        " of completed task and its name in format: 10.10.2021 name_of_task";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return processAnswer(answer);
-            }
-        };
+        return new BasicAnswerHandler(
+                "Error: Wrong date or task name, please try again and write the date" +
+                " of completed task and its name in format: 10.10.2021 name_of_task",
+                this::processAnswer);
     }
 
     private Boolean processDate(String date, String name) {

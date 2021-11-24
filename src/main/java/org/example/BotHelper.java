@@ -28,6 +28,8 @@ final class BotHelper {
 
     public static SendMessage FormMessage(Update update, Map<String, BotCommand> botCommands)
     {
+        if (update.getMessage().getText().startsWith("/")
+                || answerHandler == null)
             answerHandler = new StandardAnswerHandler(null);
         answerHandler = answerHandler.handle(update, botCommands);
 

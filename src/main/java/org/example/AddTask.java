@@ -28,18 +28,14 @@ public class AddTask implements BotCommand {
 
     private BasicAnswerHandler askTaskName(Update dateTime){
         dayAndInterval = processDateTime(dateTime);
-        var errorAnswerHandler = new AnswerHandler() {
-            public String getLastBotMessage(){
+        if (dayAndInterval == null)
+            return new BasicAnswerHandler(
+                    "Error: Wrong date, please try again and write date and" +
+                    " time of your task in format: 10.10.2021 9:00 - 10:00",
+                    this::askTaskName);
         return new BasicAnswerHandler(
                 "write name for your task",
                 this::askTaskDescription);
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return askTaskName(answer);
-            }
-        };
-        if (dayAndInterval != null)
-        return errorAnswerHandler;
     }
 
     protected BasicAnswerHandler askTaskDescription(Update name){
@@ -102,16 +98,10 @@ public class AddTask implements BotCommand {
     protected BasicAnswerHandler processAnswer(Update taskType){
         TaskType tskType;
         int typeAsInt;
-        var errorAnswerHandler = new AnswerHandler() {
-            public String getLastBotMessage(){
-                return "Error: Wrong value for task type. Please try again and" +
-                        " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important";
-            }
-
-            public AnswerHandler handle(Update answer, Map<String, BotCommand> botCommands){
-                return processAnswer(answer, description, name, dayAndInterval);
-            }
-        };
+        var errorAnswerHandler = new BasicAnswerHandler(
+                "Error: Wrong value for task type. Please try again and" +
+                " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
+                this::askTaskType);
         try {
             typeAsInt = Integer.parseInt(taskType.getMessage().getText());
         } catch (NumberFormatException  e) {
