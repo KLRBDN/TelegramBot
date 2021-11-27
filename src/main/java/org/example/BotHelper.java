@@ -28,10 +28,15 @@ final class BotHelper {
 
     public static SendMessage FormMessage(Update update, Map<String, BotCommand> botCommands)
     {
-        if (update.getMessage().getText().startsWith("/")
-                || answerHandler == null)
-            answerHandler = new StandardAnswerHandler(null);
+        if (!update.hasCallbackQuery()) {
+            if (update.getMessage().getText().startsWith("/")
+                    || answerHandler == null)
+                answerHandler = new StandardAnswerHandler(null);
+        }
         answerHandler = answerHandler.handle(update, botCommands);
+
+        if (answerHandler.getMessage() != null)
+            return answerHandler.getMessage();
 
         SendMessage message = new SendMessage();
         message.setChatId(update.getMessage().getChatId().toString());
@@ -42,7 +47,6 @@ final class BotHelper {
 
     public static SendMessage sendInlineKeyBoardMessage(long chatId) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         var yearsDataBase = YearsDataBase.getInstance();
         var date = Day.getTodayDate();
         var dateSplitted = date.split("\\.");
@@ -52,9 +56,6 @@ final class BotHelper {
                 .getAllDays();
         List<InlineKeyboardButton> buttonRow = new ArrayList<>(7);
         List<List<InlineKeyboardButton>> buttonRowList = new ArrayList<>();
-//        for (int i = 0; i < 2; i++) {
-//            var managerButton
-//        }
         for (int i = 1; i <= days.length; i++) {
             var button = new InlineKeyboardButton();
             button.setText(Integer.toString(i));

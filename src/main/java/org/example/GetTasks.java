@@ -1,5 +1,7 @@
 package org.example;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.time.LocalDate;
@@ -18,54 +20,44 @@ public class GetTasks implements BotCommand {
     }
 
     @Override
-    public BasicAnswerHandler exec() {
+    public BasicAnswerHandler exec(Update answer) {
+        var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
         return new BasicAnswerHandler(
-                "write the date of tasks in format '10.10.2021' or 'today' if you want to see tasks for today",
-                this::processAnswer);
+                "фыва", this::processAnswer, message);
     }
 
     private BasicAnswerHandler processAnswer(Update answer){
-        var line = answer.getMessage().getText();
-        var tasks = processDateAndGetTasks(line);
+        var date = answer.getCallbackQuery().getData();
+        var tasks = processDateAndGetTasks(date);
+        // Валится на 'message.setChatId(update.getMessage().getChatId().toString());' из BotHelper.java
+        var strBuilder = new StringBuilder();
         if (tasks != null) {
-            var strBuilder = new StringBuilder();
             for (Task task : tasks)
                 strBuilder.append(task.name)
-                          .append(": ")
-                          .append(task.timeInterval.toString())
-                          .append("\n");
+                        .append(": ")
+                        .append(task.timeInterval.toString())
+                        .append("\n");
             if (strBuilder.length() == 0)
                 return new StandardAnswerHandler("No tasks for this date");
             return new StandardAnswerHandler(strBuilder.toString());
         }
-        return new BasicAnswerHandler(
-                "Error: Wrong date, please try again and write the date" +
-                        " of day where you want to view tasks in format: '10.10.2021'",
-                this::processAnswer);
+        return new StandardAnswerHandler("No tasks for this date");
     }
 
     private ArrayList<Task> processDateAndGetTasks(String date) {
-        int day, month, year;
-        var splitted = date.split("\\.");
-        if (splitted.length != 3 && splitted.length != 1)
+        try {
+            return getDayTasks(date);
+        } catch (NullPointerException e) {
             return null;
-        if (splitted[0].equalsIgnoreCase("today"))
-            return getTodayTasks();
-        else if (splitted.length == 3) {
-            day = Integer.parseInt(splitted[0]);
-            month = Integer.parseInt(splitted[1]);
-            year = Integer.parseInt(splitted[2]);
-            try {
-                return getDayTasks(day, month, year);
-            } catch (NullPointerException e) {
-                return null;
-            }
         }
-        return null;
     }
 
     public static ArrayList<Task> getTodayTasks() {
         return Day.getToday().getTasks();
+    }
+
+    public static ArrayList<Task> getDayTasks(String date) {
+        return Day.getDay(date).getTasks();
     }
 
     public static ArrayList<Task> getDayTasks(LocalDate date) {

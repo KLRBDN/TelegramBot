@@ -9,6 +9,8 @@ import java.util.Map;
 
 public class AddRepetitiveTask extends AddTask {
     private final Map<String, Integer> mapOfDaysOfWeek;
+    // Добавил вот это поле
+    private Object[] dayAndInterval;
 
     public AddRepetitiveTask(){
         mapOfDaysOfWeek = new HashMap<String, Integer>() {{
@@ -24,7 +26,7 @@ public class AddRepetitiveTask extends AddTask {
 
     @Override
     public String getDescription() {
-        return "add repetitive task for a day of week";
+        return "Add repetitive task for a day of week";
     }
 
     @Override
@@ -33,18 +35,18 @@ public class AddRepetitiveTask extends AddTask {
     }
 
     @Override
-    public BasicAnswerHandler exec() {
+    public BasicAnswerHandler exec(Update answer) {
         return new BasicAnswerHandler(
-                "write day of week to add repetitive task (M, T1, W, T2, F, S1, S2) " +
+                "Write day of week to add repetitive task (M, T1, W, T2, F, S1, S2) " +
                         "and time in format 9:00 - 10:00. Example 'T1 9:00 - 10:00'",
-                this::askTaskName);
+                this::askTaskName, null);
     }
 
     private BasicAnswerHandler askTaskName(Update dateTime){
         dayAndInterval = processDayAndInterval(dateTime);
         if (dayAndInterval == null)
-            return exec();
-        return new BasicAnswerHandler("write name for your task", this::askTaskDescription);
+            return exec(null);
+        return new BasicAnswerHandler("Write name for your task", this::askTaskDescription, null);
     }
 
     @Override
