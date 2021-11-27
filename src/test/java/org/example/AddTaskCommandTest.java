@@ -42,7 +42,8 @@ public class AddTaskCommandTest {
         userAnswer.setMessage(messageForUserAnswer);
 
         var taskCommand = new AddTask();
-        var answerHandler = taskCommand.exec();
+        // Здесь проблема с null-ом
+        var answerHandler = taskCommand.exec(null);
 
         assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00",
                 answerHandler.getLastBotMessage());

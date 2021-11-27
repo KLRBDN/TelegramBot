@@ -41,14 +41,14 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
+        if ((update.hasMessage() && update.getMessage().hasText()) || (update.hasCallbackQuery() &&
+                !update.getCallbackQuery().getData().equals("null"))) {
             try {
                 execute(BotHelper.FormMessage(update, botCommands));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         }
-        
     }
 
     @Override

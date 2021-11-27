@@ -1,5 +1,7 @@
 package org.example;
 
+import org.telegram.telegrambots.meta.api.objects.Update;
+
 public class GetCompletedTasks implements BotCommand{
 
     @Override
@@ -13,7 +15,7 @@ public class GetCompletedTasks implements BotCommand{
     }
 
     @Override
-    public BasicAnswerHandler exec() {
+    public BasicAnswerHandler exec(Update answer) {
         var strBuilder = new StringBuilder();
         for (var pair : YearsDataBase.completedTasks) {
             var task = (Task) pair[0];

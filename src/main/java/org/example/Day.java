@@ -59,6 +59,14 @@ public class Day implements DayInterface {
         return getDay(LocalDate.now(zoneId));
     }
 
+    public static DayInterface getDay(String date) {
+        var splitted = date.split("\\.");
+        var day = Integer.parseInt(splitted[0]);
+        var month = Integer.parseInt(splitted[1]);
+        var year = Integer.parseInt(splitted[2]);
+        return getDay(day, month, year);
+    }
+
     public static DayInterface getDay(LocalDate date) {
         return getDay(date.getDayOfMonth(), date.getMonthValue(), date.getYear());
     }
