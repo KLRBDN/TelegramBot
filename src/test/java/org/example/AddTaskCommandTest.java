@@ -51,7 +51,7 @@ public class AddTaskCommandTest {
 
         assert(!(answerHandler instanceof StandardAnswerHandler));
         if (!correctFormat){
-            assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00",
+            assertEquals("Error: Wrong date, please try again and write date and time of your task in format: 10.10.2021 9:00 - 10:00",
                     answerHandler.getLastBotMessage());
         }
         else {
