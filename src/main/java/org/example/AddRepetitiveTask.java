@@ -1,5 +1,6 @@
 package org.example;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import javax.management.InvalidAttributeValueException;
@@ -9,8 +10,7 @@ import java.util.Map;
 
 public class AddRepetitiveTask extends AddTask {
     private final Map<String, Integer> mapOfDaysOfWeek;
-    // Добавил вот это поле
-    private Object[] dayAndInterval;
+    private DayOfWeek dayOfWeek;
 
     public AddRepetitiveTask(){
         mapOfDaysOfWeek = new HashMap<String, Integer>() {{
@@ -38,23 +38,19 @@ public class AddRepetitiveTask extends AddTask {
     public BasicAnswerHandler exec(Update answer) {
         return new BasicAnswerHandler(
                 "Write day of week to add repetitive task (M, T1, W, T2, F, S1, S2) " +
-                        "and time in format 9:00 - 10:00. Example 'T1 9:00 - 10:00'",
-                this::askTaskName, null);
+                "and time in format 9:00 - 10:00. Example 'T1 9:00 - 10:00'",
+                this::askTaskName);
     }
 
     private BasicAnswerHandler askTaskName(Update dateTime){
-        dayAndInterval = processDayAndInterval(dateTime);
-        if (dayAndInterval == null)
+        if (!tryProcessDateTime(dateTime))
             return exec(null);
-        return new BasicAnswerHandler("Write name for your task", this::askTaskDescription, null);
+        return new BasicAnswerHandler("Write name for your task", this::askTaskDescription);
     }
 
     @Override
-    protected Boolean addTask(TaskType taskType, String description,
-                              String name, Object[] dayAndInterval) {
+    protected Boolean addTask(TaskType taskType) {
         try {
-            var dayOfWeek = (DayOfWeek)dayAndInterval[0];
-            var timeInterval = (TimeInterval)dayAndInterval[1];
             return RepetitiveTasks.tryAddRepetitiveTask(
                     dayOfWeek,
                     new Task(
@@ -66,32 +62,43 @@ public class AddRepetitiveTask extends AddTask {
         }
     }
 
-    private Object[] processDayAndInterval(Update dateTime){
+    private Boolean tryProcessDateTime(Update dateTime){
         var splDateTime = dateTime
                 .getMessage()
                 .getText()
                 .split(" - ");
         if (splDateTime.length != 2){
-            return null;
+            return false;
         }
         var dayAndStart  = splDateTime[0].split(" ");
         if (dayAndStart.length != 2)
-            return null;
-        var dayOfWeek = mapOfDaysOfWeek.get(dayAndStart[0]);
-        if (dayOfWeek == null)
-            return null;
+            return false;
+
+        var dayOfWeekAsInt = mapOfDaysOfWeek.get(dayAndStart[0]);
+        if (dayOfWeekAsInt == null)
+            return false;
 
         var start = dayAndStart[1];
+        var end = splDateTime[1];
+        var interval = makeTimeInterval(start, end);
+        if (interval == null)
+            return false;
+
+        this.dayOfWeek = DayOfWeek.of(dayOfWeekAsInt);
+        this.timeInterval = interval;
+
+        return true;
+    }
+
+    private TimeInterval makeTimeInterval(String start, String end){
         var splStart = start.split(":");
         if (splStart.length != 2)
             return  null;
-        var end = splDateTime[1];
         var splEnd = end.split(":");
         if (splEnd.length != 2)
             return  null;
-        TimeInterval interval;
         try{
-            interval = new TimeInterval(
+            return new TimeInterval(
                     new Time(Integer.parseInt(splStart[0]), Integer.parseInt(splStart[1])),
                     new Time(Integer.parseInt(splEnd[0]), Integer.parseInt(splEnd[1]))
             );
@@ -99,11 +106,5 @@ public class AddRepetitiveTask extends AddTask {
         catch (InvalidAttributeValueException e){
             return null;
         }
-
-        var dayAndInterval = new Object[2];
-        dayAndInterval[0] = DayOfWeek.of(dayOfWeek);
-        dayAndInterval[1] = interval;
-
-        return dayAndInterval;
     }
 }

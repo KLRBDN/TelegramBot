@@ -22,8 +22,7 @@ public class GetTasks implements BotCommand {
     @Override
     public BasicAnswerHandler exec(Update answer) {
         var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
-        return new BasicAnswerHandler(
-                "фыва", this::processAnswer, message);
+        return new BasicAnswerHandler(message, this::processAnswer);
     }
 
     private BasicAnswerHandler processAnswer(Update answer){

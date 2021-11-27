@@ -24,17 +24,15 @@ public class CompleteTask implements BotCommand {
     @Override
     public BasicAnswerHandler exec(Update answer) {
         var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
-        return new BasicAnswerHandler(
-                "", this::processAnswer, message);
+        return new BasicAnswerHandler(message, this::processAnswer);
     }
 
     private BasicAnswerHandler processAnswer(Update answer){
         date = answer.getCallbackQuery().getData();
-        var message = new SendMessage();
-        message.setText("Write name for your task");
-        message.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));
-        return new BasicAnswerHandler("Write name for your task",
-                this::askTaskName, message);
+        var botRequest = new SendMessage();
+        botRequest.setText("Write name for your task");
+        botRequest.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));
+        return new BasicAnswerHandler(botRequest, this::askTaskName);
     }
 
     private BasicAnswerHandler askTaskName(Update answer){

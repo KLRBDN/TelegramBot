@@ -8,8 +8,6 @@ import java.util.function.Consumer;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 final class BotHelper {
@@ -35,14 +33,7 @@ final class BotHelper {
         }
         answerHandler = answerHandler.handle(update, botCommands);
 
-        if (answerHandler.getMessage() != null)
-            return answerHandler.getMessage();
-
-        SendMessage message = new SendMessage();
-        message.setChatId(update.getMessage().getChatId().toString());
-        message.setText(answerHandler.getLastBotMessage());
-        
-        return message;
+        return answerHandler.getBotRequest();
     }
 
     public static SendMessage sendInlineKeyBoardMessage(long chatId) {

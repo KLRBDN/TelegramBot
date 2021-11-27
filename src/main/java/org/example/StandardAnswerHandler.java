@@ -1,12 +1,13 @@
 package org.example;
 
 import java.util.Map;
+
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class StandardAnswerHandler extends BasicAnswerHandler{
 
-    public StandardAnswerHandler(String lastBotMessage) {
-        super(lastBotMessage, null, null);
+    public StandardAnswerHandler(String request) {
+        super(request);
     }
 
     @Override

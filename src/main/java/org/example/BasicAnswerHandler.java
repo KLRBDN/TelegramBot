@@ -6,22 +6,30 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.Map;
 
 public class BasicAnswerHandler {
-    private String lastBotMessage;
     private AnswerHandler handler;
-    private SendMessage message;
+    private SendMessage botRequest;
 
-    public BasicAnswerHandler(String lastBotMessage, AnswerHandler handler, SendMessage message){
-        this.lastBotMessage = lastBotMessage;
+    public BasicAnswerHandler(SendMessage botRequest, AnswerHandler handler){
         this.handler = handler;
-        this.message = message;
+        this.botRequest = botRequest;
     }
 
-    public String getLastBotMessage() {
-        return lastBotMessage;
+    public BasicAnswerHandler(String request, AnswerHandler handler){
+        var botRequest = new SendMessage();
+        botRequest.setText(request);
+        this.botRequest = botRequest;
+        this.handler = handler;
     }
 
-    public SendMessage getMessage() {
-        return this.message;
+    protected BasicAnswerHandler(String request){
+        var botRequest = new SendMessage();
+        botRequest.setText(request);
+        this.botRequest = botRequest;
+        this.handler = null;
+    }
+
+    public SendMessage getBotRequest() {
+        return this.botRequest;
     }
 
     public BasicAnswerHandler handle(Update answer, Map<String, BotCommand> botCommands) {
