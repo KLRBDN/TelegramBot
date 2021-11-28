@@ -31,27 +31,31 @@ public class Day implements DayInterface {
     } 
 
     @Override
-    public Boolean deleteTask(String name) {
-        for (Task task : tasks)
-            if (task.name.equals(name)) {
-                tasks.remove(task);
-                return true;
-            }
-        return false;
+    public Boolean deleteTask(Task task) {
+        return tasks.remove(task)
+                || RepetitiveTasks.tryDeleteTask(date.getDayOfWeek(), task);
     }
 
     public Boolean completeTask(String name) {
-        for (Task task : tasks)
+        for (Task task : getTasks())
             if (task.name.equals(name)) {
                 YearsDataBase.completedTasks.add(new Object[] { task, getTodayDate() });
-                return deleteTask(task.name);
+                return deleteTask(task);
             }
         return false;
     }
 
     @Override
     public ArrayList<Task> getTasks() {
-        return tasks;
+        return merge(RepetitiveTasks.getTasksFor(date.getDayOfWeek()), tasks);
+    }
+
+    private ArrayList<Task> merge(ArrayList<Task> first, ArrayList<Task> second){
+        var mergeResultList = new ArrayList<Task>(
+                first.size() + second.size());
+        mergeResultList.addAll(first);
+        mergeResultList.addAll(second);
+        return mergeResultList;
     }
 
     public static DayInterface getToday() {
@@ -82,11 +86,14 @@ public class Day implements DayInterface {
         return monthObject.getDay(day);
     }
 
+    public String convertToString(){
+        return date.getDayOfMonth() + "." +
+                date.getMonthValue() + "." +
+                date.getYear();
+    }
+
     public static String getTodayDate() {
-        var zoneId = TimeZone.getTimeZone(timeZone).toZoneId();
-        var todayDate = LocalDate.now(zoneId);
-        return todayDate.getDayOfMonth() + "." +
-                todayDate.getMonthValue() + "." +
-                todayDate.getYear();
+        var day = (Day)getToday();
+        return day.convertToString();
     }
 }

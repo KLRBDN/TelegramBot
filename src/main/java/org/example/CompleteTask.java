@@ -22,27 +22,27 @@ public class CompleteTask implements BotCommand {
     }
 
     @Override
-    public BasicAnswerHandler exec(Update answer) {
+    public BotRequest exec(Update answer) {
         var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
-        return new BasicAnswerHandler(message, this::processAnswer);
+        return new BotRequest(message, this::askTaskName);
     }
 
-    private BasicAnswerHandler processAnswer(Update answer){
+    private BotRequest askTaskName(Update answer){
         date = answer.getCallbackQuery().getData();
         var botRequest = new SendMessage();
         botRequest.setText("Write name for your task");
         botRequest.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));
-        return new BasicAnswerHandler(botRequest, this::askTaskName);
+        return new BotRequest(botRequest, this::setTaskName);
     }
 
-    private BasicAnswerHandler askTaskName(Update answer){
+    private BotRequest setTaskName(Update answer){
         taskName = answer.getMessage().getText();
-        if (processDate(date, taskName))
-            return new StandardAnswerHandler("Task was successfully completed!");
-        return new StandardAnswerHandler("There is no such task");
+        if (completeTask(date, taskName))
+            return new StandardBotRequest("Task was successfully completed!");
+        return new StandardBotRequest("There is no such task");
     }
 
-    private Boolean processDate(String date, String name) {
+    private Boolean completeTask(String date, String name) {
         try {
             return Day
                     .getDay(date)

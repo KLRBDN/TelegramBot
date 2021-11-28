@@ -1,7 +1,5 @@
 package org.example;
 
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.time.LocalDate;
@@ -20,12 +18,12 @@ public class GetTasks implements BotCommand {
     }
 
     @Override
-    public BasicAnswerHandler exec(Update answer) {
+    public BotRequest exec(Update answer) {
         var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
-        return new BasicAnswerHandler(message, this::processAnswer);
+        return new BotRequest(message, this::processAnswer);
     }
 
-    private BasicAnswerHandler processAnswer(Update answer){
+    private BotRequest processAnswer(Update answer){
         var date = answer.getCallbackQuery().getData();
         var tasks = processDateAndGetTasks(date);
         // Валится на 'message.setChatId(update.getMessage().getChatId().toString());' из BotHelper.java
@@ -37,10 +35,10 @@ public class GetTasks implements BotCommand {
                         .append(task.timeInterval.toString())
                         .append("\n");
             if (strBuilder.length() == 0)
-                return new StandardAnswerHandler("No tasks for this date");
-            return new StandardAnswerHandler(strBuilder.toString());
+                return new StandardBotRequest("No tasks for this date");
+            return new StandardBotRequest(strBuilder.toString());
         }
-        return new StandardAnswerHandler("No tasks for this date");
+        return new StandardBotRequest("No tasks for this date");
     }
 
     private ArrayList<Task> processDateAndGetTasks(String date) {

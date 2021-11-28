@@ -8,5 +8,5 @@ public interface BotCommand {
 
     String getName();
     
-    BasicAnswerHandler exec(Update answer);
+    BotRequest exec(Update answer);
 }

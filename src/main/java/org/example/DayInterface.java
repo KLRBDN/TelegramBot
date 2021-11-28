@@ -6,7 +6,7 @@ public interface DayInterface {
 
     Boolean tryAddTask(Task task);
 
-    Boolean deleteTask(String name);
+    Boolean deleteTask(Task task);
 
     Boolean completeTask(String name);
 

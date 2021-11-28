@@ -1,6 +1,5 @@
 package org.example;
 
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import javax.management.InvalidAttributeValueException;
@@ -35,23 +34,23 @@ public class AddRepetitiveTask extends AddTask {
     }
 
     @Override
-    public BasicAnswerHandler exec(Update answer) {
-        return new BasicAnswerHandler(
+    public BotRequest exec(Update answer) {
+        return new BotRequest(
                 "Write day of week to add repetitive task (M, T1, W, T2, F, S1, S2) " +
                 "and time in format 9:00 - 10:00. Example 'T1 9:00 - 10:00'",
                 this::askTaskName);
     }
 
-    private BasicAnswerHandler askTaskName(Update dateTime){
+    private BotRequest askTaskName(Update dateTime){
         if (!tryProcessDateTime(dateTime))
             return exec(null);
-        return new BasicAnswerHandler("Write name for your task", this::askTaskDescription);
+        return new BotRequest("Write name for your task", this::askTaskDescription);
     }
 
     @Override
     protected Boolean addTask(TaskType taskType) {
         try {
-            return RepetitiveTasks.tryAddRepetitiveTask(
+            return RepetitiveTasks.tryAddTask(
                     dayOfWeek,
                     new Task(
                             timeInterval.getStart(),

@@ -22,49 +22,49 @@ public class AddTask implements BotCommand {
     }
     
     @Override
-    public BasicAnswerHandler exec(Update answer) {
+    public BotRequest exec(Update answer) {
         var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
-        return new BasicAnswerHandler(message, this::processAnswer);
+        return new BotRequest(message, this::askTimeInterval);
     }
 
-    private BasicAnswerHandler processAnswer(Update answer){
+    private BotRequest askTimeInterval(Update answer){
         date = answer.getCallbackQuery().getData();
         var botRequest = new SendMessage();
         botRequest.setText("Write time interval of your task in format: 9:00 - 10:00");
         botRequest.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));
-        return new BasicAnswerHandler(botRequest, this::askTimeOfDay);
+        return new BotRequest(botRequest, this::askTaskName);
     }
 
-    private BasicAnswerHandler askTimeOfDay(Update answer) {
-        timeInterval = processTimeInterval(answer);
+    private BotRequest askTaskName(Update answerWithTimeInterval) {
+        timeInterval = processTimeInterval(answerWithTimeInterval);
         if (timeInterval != null)
-            return new BasicAnswerHandler("Write name for your task", this::askTaskName);
-        return new BasicAnswerHandler(
+            return new BotRequest("Write name for your task", this::askTaskDescription);
+        return new BotRequest(
                 "Error: Wrong time, please try again and write " +
                         "time interval of your task in format: 9:00 - 10:00",
-                this::askTimeOfDay);
+                this::askTaskName);
     }
 
-    private BasicAnswerHandler askTaskName(Update answer){
-        this.name = answer.getMessage().getText();
-        return new BasicAnswerHandler("Write description for your task", this::askTaskDescription);
+    protected BotRequest askTaskDescription(Update answerWithName){
+        this.name = answerWithName.getMessage().getText();
+        return new BotRequest("Write description for your task", this::askTaskType);
     }
 
-    protected BasicAnswerHandler askTaskDescription(Update answer){
-        this.description = answer.getMessage().getText();
-        return new BasicAnswerHandler(
+    protected BotRequest askTaskType(Update answerWithDescription){
+        this.description = answerWithDescription.getMessage().getText();
+        return new BotRequest(
                 "Write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                this::askTaskType);
+                this::processAnswer);
     }
 
-    protected BasicAnswerHandler askTaskType(Update answer){
-        if (processAnswerForTaskType(answer)) {
-            return new StandardAnswerHandler("Task was added");
+    protected BotRequest processAnswer(Update answerWithTaskType){
+        if (processAnswerForTaskType(answerWithTaskType)) {
+            return new StandardBotRequest("Task was added");
         }
-        return new BasicAnswerHandler(
+        return new BotRequest(
                 "Error: Wrong value for task type. Please try again and" +
                 " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                this::askTaskType);
+                this::processAnswer);
     }
 
     private TimeInterval processTimeInterval(Update answer){
@@ -92,10 +92,10 @@ public class AddTask implements BotCommand {
         }
     }
 
-    protected Boolean processAnswerForTaskType(Update answer){
+    protected Boolean processAnswerForTaskType(Update answerWithTaskType){
         int taskTypeAsInt;
         try {
-            taskTypeAsInt = Integer.parseInt(answer.getMessage().getText());
+            taskTypeAsInt = Integer.parseInt(answerWithTaskType.getMessage().getText());
         } catch (NumberFormatException  e) {
             return false;
         }
