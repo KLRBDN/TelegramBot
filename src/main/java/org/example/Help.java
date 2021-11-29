@@ -24,13 +24,13 @@ public class Help implements BotCommand {
     }
 
     @Override
-    public BasicAnswerHandler exec(Update answer) {
+    public BotRequest exec(Update answer) {
         var strBuilder = new StringBuilder();
         for (var exemplar : botCommands.values())
             strBuilder.append(exemplar.getName())
                       .append(" - ")
                       .append(exemplar.getDescription())
                       .append("\n");
-        return new StandardAnswerHandler(strBuilder.toString());
+        return new StandardBotRequest(strBuilder.toString());
     } 
 }

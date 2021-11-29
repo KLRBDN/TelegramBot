@@ -43,40 +43,40 @@ public class AddTaskCommandTest {
 
         var taskCommand = new AddTask();
         // Здесь проблема с null-ом
-        var answerHandler = taskCommand.exec(null);
+        var answerHandler = taskCommand.exec(userAnswer);
 
         assertEquals("write date and time in format: 10.10.2021 9:00 - 10:00",
-                answerHandler.getLastBotMessage());
+                answerHandler.getRequestMessage().getText());
 
         answerHandler = answerHandler.handle(userAnswer, null);
 
-        assert(!(answerHandler instanceof StandardAnswerHandler));
+        assert(!(answerHandler instanceof StandardBotRequest));
         if (!correctFormat){
             assertEquals("Error: Wrong date, please try again and write date and time of your task in format: 10.10.2021 9:00 - 10:00",
-                    answerHandler.getLastBotMessage());
+                    answerHandler.getRequestMessage().getText());
         }
         else {
-            assertEquals("write name for your task", answerHandler.getLastBotMessage());
+            assertEquals("write name for your task", answerHandler.getRequestMessage().getText());
 
             userAnswer.getMessage().setText("name");
             answerHandler = answerHandler.handle(userAnswer, null);
-            assertEquals("write description for your task", answerHandler.getLastBotMessage());
+            assertEquals("write description for your task", answerHandler.getRequestMessage().getText());
 
             userAnswer.getMessage().setText("description");
             answerHandler = answerHandler.handle(userAnswer, null);
             assertEquals("write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                    answerHandler.getLastBotMessage());
+                    answerHandler.getRequestMessage().getText());
 
             userAnswer.getMessage().setText("wrong answer");
             answerHandler = answerHandler.handle(userAnswer, null);
-            assert(!(answerHandler instanceof StandardAnswerHandler));
+            assert(!(answerHandler instanceof StandardBotRequest));
             assertEquals("write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                    answerHandler.getLastBotMessage());
+                    answerHandler.getRequestMessage().getText());
 
             userAnswer.getMessage().setText("3");
             answerHandler = answerHandler.handle(userAnswer, null);
-            assert(answerHandler instanceof StandardAnswerHandler);
-            assertEquals("Task was added", answerHandler.getLastBotMessage());
+            assert(answerHandler instanceof StandardBotRequest);
+            assertEquals("Task was added", answerHandler.getRequestMessage().getText());
         }
     }
 }

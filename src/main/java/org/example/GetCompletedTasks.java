@@ -15,7 +15,7 @@ public class GetCompletedTasks implements BotCommand{
     }
 
     @Override
-    public BasicAnswerHandler exec(Update answer) {
+    public BotRequest exec(Update answer) {
         var strBuilder = new StringBuilder();
         for (var pair : YearsDataBase.completedTasks) {
             var task = (Task) pair[0];
@@ -27,7 +27,7 @@ public class GetCompletedTasks implements BotCommand{
                     .append("\n");
         }
         if (strBuilder.length() == 0)
-            return new StandardAnswerHandler("No tasks completed");
-        return new StandardAnswerHandler(strBuilder.toString());
+            return new StandardBotRequest("No tasks completed");
+        return new StandardBotRequest(strBuilder.toString());
     }
 }

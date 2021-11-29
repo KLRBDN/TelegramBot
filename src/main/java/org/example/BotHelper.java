@@ -8,12 +8,10 @@ import java.util.function.Consumer;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 final class BotHelper {
-    private static BasicAnswerHandler answerHandler;
+    private static BotRequest answerHandler;
 
     public static void fillBotCommandsDictionary(Map<String, BotCommand> mapToFill, List<BotCommand> commandsToPut)
     {    
@@ -31,18 +29,12 @@ final class BotHelper {
         if (!update.hasCallbackQuery()) {
             if (update.getMessage().getText().startsWith("/")
                     || answerHandler == null)
-                answerHandler = new StandardAnswerHandler(null);
+                answerHandler = new StandardBotRequest("");
         }
         answerHandler = answerHandler.handle(update, botCommands);
 
-        if (answerHandler.getMessage() != null)
-            return answerHandler.getMessage();
-
-        SendMessage message = new SendMessage();
-        message.setChatId(update.getMessage().getChatId().toString());
-        message.setText(answerHandler.getLastBotMessage());
-        
-        return message;
+        answerHandler.setChatId(update);
+        return answerHandler.getRequestMessage();
     }
 
     public static SendMessage sendInlineKeyBoardMessage(long chatId) {

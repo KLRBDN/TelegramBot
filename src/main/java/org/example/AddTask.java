@@ -6,14 +6,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
-    //protected Object[] dayAndInterval;
-    //protected Update name;
-    //protected Update description;
     private String date;
-    private TimeInterval timeInterval;
-    private String name;
-    private String description;
-    private TaskType taskType;
+    protected TimeInterval timeInterval;
+    protected String name;
+    protected String description;
 
     @Override
     public String getName() {
@@ -26,56 +22,49 @@ public class AddTask implements BotCommand {
     }
     
     @Override
-    public BasicAnswerHandler exec(Update answer) {
+    public BotRequest exec(Update answer) {
         var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
-        return new BasicAnswerHandler(
-                "", this::processAnswer, message);
+        return new BotRequest(message, this::askTimeInterval);
     }
 
-    private BasicAnswerHandler processAnswer(Update answer){
+    private BotRequest askTimeInterval(Update answer){
         date = answer.getCallbackQuery().getData();
-        var message = new SendMessage();
-        message.setText("Write time interval of your task in format: 9:00 - 10:00");
-        message.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));
-        return new BasicAnswerHandler("",
-                this::askTimeOfDay, message);
+        var botRequest = new SendMessage();
+        botRequest.setText("Write time interval of your task in format: 9:00 - 10:00");
+        botRequest.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));
+        return new BotRequest(botRequest, this::askTaskName);
     }
 
-    private BasicAnswerHandler askTimeOfDay(Update answer) {
-        timeInterval = processTimeInterval(answer);
-        if (timeInterval == null) {
-            return new BasicAnswerHandler(
-                    "Error: Wrong time, please try again and write " +
-                            "time interval of your task in format: 9:00 - 10:00",
-                    this::askTimeOfDay, null);
-        }
-        return new BasicAnswerHandler(
-                "Write name for your task",
-                this::askTaskName, null);
+    private BotRequest askTaskName(Update answerWithTimeInterval) {
+        timeInterval = processTimeInterval(answerWithTimeInterval);
+        if (timeInterval != null)
+            return new BotRequest("Write name for your task", this::askTaskDescription);
+        return new BotRequest(
+                "Error: Wrong time, please try again and write " +
+                        "time interval of your task in format: 9:00 - 10:00",
+                this::askTaskName);
     }
 
-    private BasicAnswerHandler askTaskName(Update answer){
-        this.name = answer.getMessage().getText();
-        return new BasicAnswerHandler(
-                "Write description for your task",
-                this::askTaskDescription, null);
+    protected BotRequest askTaskDescription(Update answerWithName){
+        this.name = answerWithName.getMessage().getText();
+        return new BotRequest("Write description for your task", this::askTaskType);
     }
 
-    protected BasicAnswerHandler askTaskDescription(Update answer){
-        this.description = answer.getMessage().getText();
-        return new BasicAnswerHandler(
+    protected BotRequest askTaskType(Update answerWithDescription){
+        this.description = answerWithDescription.getMessage().getText();
+        return new BotRequest(
                 "Write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                this::askTaskType, null);
+                this::processAnswer);
     }
 
-    protected BasicAnswerHandler askTaskType(Update answer){
-        if (processAnswerForTaskType(answer)) {
-            return new StandardAnswerHandler("Task was added");
+    protected BotRequest processAnswer(Update answerWithTaskType){
+        if (processAnswerForTaskType(answerWithTaskType)) {
+            return new StandardBotRequest("Task was added");
         }
-        return new BasicAnswerHandler(
-                                "Error: Wrong value for task type. Please try again and" +
+        return new BotRequest(
+                "Error: Wrong value for task type. Please try again and" +
                 " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                this::askTaskType, null);
+                this::processAnswer);
     }
 
     private TimeInterval processTimeInterval(Update answer){
@@ -103,40 +92,28 @@ public class AddTask implements BotCommand {
         }
     }
 
-    protected Boolean processAnswerForTaskType(Update answer){
+    protected Boolean processAnswerForTaskType(Update answerWithTaskType){
         int taskTypeAsInt;
         try {
-            taskTypeAsInt = Integer.parseInt(answer.getMessage().getText());
+            taskTypeAsInt = Integer.parseInt(answerWithTaskType.getMessage().getText());
         } catch (NumberFormatException  e) {
             return false;
         }
         switch (taskTypeAsInt) {
             case 1:
-                taskType = TaskType.overlapping;
-                break;
+                return addTask(TaskType.overlapping);
             case 2:
-                taskType = TaskType.nonOverlapping;
-                break;
+                return addTask(TaskType.nonOverlapping);
             case 3:
-                taskType = TaskType.important;
-                break;
+                return addTask(TaskType.important);
             default:
                 return false;
         }
-        // Здесь трабл (аргументы)
-        if (addTask(taskType, description, name, new Object[] { timeInterval })){
-            return true;
-        }
-        return false;
     }
 
-    // Здесь трабл (аргументы)
-    protected Boolean addTask(TaskType taskType, String description,
-                            String name, Object[] timeIntervalObj) {
+    protected Boolean addTask(TaskType taskType) {
         try {
-            var day = Day.getDay(date);
-            var timeInterval = (TimeInterval)timeIntervalObj[0];
-            return day.tryAddTask(
+            return Day.getDay(date).tryAddTask(
                     new Task(
                             timeInterval.getStart(),
                             timeInterval.getEnd(),
