@@ -36,6 +36,15 @@ public class Day implements DayInterface {
                 || RepetitiveTasks.tryDeleteTask(date.getDayOfWeek(), task);
     }
 
+    @Override
+    public Boolean deleteTask(String name) {
+        for (Task task : getTasks())
+            if (task.name.equals(name)) {
+                return tasks.remove(task);
+            }
+        return false;
+    }
+
     public Boolean completeTask(String name) {
         for (Task task : getTasks())
             if (task.name.equals(name)) {

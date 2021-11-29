@@ -6,7 +6,7 @@ public class GetCompletedTasks implements BotCommand{
 
     @Override
     public String getDescription() {
-        return "Returns all completed tasks of some date";
+        return "Возвращает все выполненные задачи за всё время";
     }
 
     @Override

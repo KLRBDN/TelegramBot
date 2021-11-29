@@ -25,7 +25,7 @@ public class AddRepetitiveTask extends AddTask {
 
     @Override
     public String getDescription() {
-        return "Add repetitive task for a day of week";
+        return "Добавляет повторяющуюся задачу на выбранный день недели";
     }
 
     @Override

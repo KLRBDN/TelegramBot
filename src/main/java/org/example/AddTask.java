@@ -18,12 +18,12 @@ public class AddTask implements BotCommand {
 
     @Override
     public String getDescription() {
-        return "Adds task for some date";
+        return "Добавляет задачу на выбранную дату";
     }
     
     @Override
     public BotRequest exec(Update answer) {
-        var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
         return new BotRequest(message, this::askTimeInterval);
     }
 

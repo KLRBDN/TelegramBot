@@ -1,19 +1,23 @@
 package org.example;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 public class CompleteTask implements BotCommand {
+    private final KeyboardConfiguration keyboardConfig;
     private String taskName;
     private String date;
 
-    public CompleteTask(YearsDataBase yearsDataBase) {
+    public CompleteTask() {
         super();
+        keyboardConfig = new KeyboardConfiguration();
     }
 
     @Override
     public String getDescription() {
-        return "Completes task and deletes it from active tasks";
+        return "Выполняет задачу и затем удаляет её из списка активных задач";
     }
 
     @Override
@@ -23,7 +27,7 @@ public class CompleteTask implements BotCommand {
 
     @Override
     public BotRequest exec(Update answer) {
-        var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
         return new BotRequest(message, this::askTaskName);
     }
 
