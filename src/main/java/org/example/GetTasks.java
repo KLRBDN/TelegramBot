@@ -9,7 +9,7 @@ public class GetTasks implements BotCommand {
 
     @Override
     public String getDescription() {
-        return "Return all active tasks of some date";
+        return "Возвращает все активные задачи на выбранную дату";
     }
 
     @Override
@@ -19,7 +19,7 @@ public class GetTasks implements BotCommand {
 
     @Override
     public BotRequest exec(Update answer) {
-        var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
         return new BotRequest(message, this::processAnswer);
     }
 

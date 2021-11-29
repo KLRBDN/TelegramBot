@@ -1,7 +1,11 @@
 package org.example;
 
+import java.text.DateFormatSymbols;
+import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -9,6 +13,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.w3c.dom.Text;
 
 final class BotHelper {
     private static BotRequest answerHandler;
@@ -35,43 +40,5 @@ final class BotHelper {
 
         answerHandler.setChatId(update);
         return answerHandler.getRequestMessage();
-    }
-
-    public static SendMessage sendInlineKeyBoardMessage(long chatId) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        var yearsDataBase = YearsDataBase.getInstance();
-        var date = Day.getTodayDate();
-        var dateSplitted = date.split("\\.");
-        var days = yearsDataBase
-                .getYear(Integer.parseInt(dateSplitted[2]))
-                .getMonth(Integer.parseInt(dateSplitted[1]))
-                .getAllDays();
-        List<InlineKeyboardButton> buttonRow = new ArrayList<>(7);
-        List<List<InlineKeyboardButton>> buttonRowList = new ArrayList<>();
-        for (int i = 1; i <= days.length; i++) {
-            var button = new InlineKeyboardButton();
-            button.setText(Integer.toString(i));
-            button.setCallbackData(i + "." + dateSplitted[1] + "." + dateSplitted[2]);
-            buttonRow.add(button);
-            if (i % 7 == 0) {
-                buttonRowList.add(buttonRow);
-                buttonRow = new ArrayList<>(7);
-            }
-        }
-        if (!buttonRow.isEmpty()) {
-            for (int i = buttonRow.size(); i < 7; i++) {
-                var emptyButton = new InlineKeyboardButton();
-                emptyButton.setText(" ");
-                emptyButton.setCallbackData("null");
-                buttonRow.add(emptyButton);
-            }
-            buttonRowList.add(buttonRow);
-        }
-        inlineKeyboardMarkup.setKeyboard(buttonRowList);
-        var message = new SendMessage();
-        message.setChatId(Long.toString(chatId));
-        message.setText("Choose the date of task to complete");
-        message.setReplyMarkup(inlineKeyboardMarkup);
-        return message;
     }
 }
