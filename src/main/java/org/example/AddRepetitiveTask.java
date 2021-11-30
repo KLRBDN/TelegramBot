@@ -66,9 +66,8 @@ public class AddRepetitiveTask extends AddTask {
                 .getMessage()
                 .getText()
                 .split(" - ");
-        if (splDateTime.length != 2){
+        if (splDateTime.length != 2)
             return false;
-        }
         var dayAndStart  = splDateTime[0].split(" ");
         if (dayAndStart.length != 2)
             return false;
@@ -77,9 +76,7 @@ public class AddRepetitiveTask extends AddTask {
         if (dayOfWeekAsInt == null)
             return false;
 
-        var start = dayAndStart[1];
-        var end = splDateTime[1];
-        var interval = makeTimeInterval(start, end);
+        var interval = makeTimeInterval(dayAndStart[1], splDateTime[1]);
         if (interval == null)
             return false;
 
@@ -87,23 +84,5 @@ public class AddRepetitiveTask extends AddTask {
         this.timeInterval = interval;
 
         return true;
-    }
-
-    private TimeInterval makeTimeInterval(String start, String end){
-        var splStart = start.split(":");
-        if (splStart.length != 2)
-            return  null;
-        var splEnd = end.split(":");
-        if (splEnd.length != 2)
-            return  null;
-        try{
-            return new TimeInterval(
-                    new Time(Integer.parseInt(splStart[0]), Integer.parseInt(splStart[1])),
-                    new Time(Integer.parseInt(splEnd[0]), Integer.parseInt(splEnd[1]))
-            );
-        }
-        catch (InvalidAttributeValueException e){
-            return null;
-        }
     }
 }

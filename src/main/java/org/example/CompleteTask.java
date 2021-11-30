@@ -7,7 +7,7 @@ public class CompleteTask implements BotCommand {
     private String taskName;
     private String date;
 
-    public CompleteTask(YearsDataBase yearsDataBase) {
+    public CompleteTask() {
         super();
     }
 

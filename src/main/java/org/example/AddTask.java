@@ -74,20 +74,22 @@ public class AddTask implements BotCommand {
                 .split(" - ");
         if (splitted.length != 2)
             return null;
-        var startTime = splitted[0];
-        var endTime = splitted[1];
 
-        var splStartTime = startTime.split(":");
-        var splEndTime = endTime.split(":");
+        return makeTimeInterval(splitted[0], splitted[1]);
+    }
 
-        if (splEndTime.length != 2 || splStartTime.length != 2)
-            return null;
-        try {
+    protected TimeInterval makeTimeInterval(String start, String end){
+        var splStart = start.split(":");
+        var splEnd = end.split(":");
+        if (splStart.length != 2 || splEnd.length != 2)
+            return  null;
+        try{
             return new TimeInterval(
-                    new Time(Integer.parseInt(splStartTime[0]), Integer.parseInt(splStartTime[1])),
-                    new Time(Integer.parseInt(splEndTime[0]), Integer.parseInt(splEndTime[1]))
+                    new Time(Integer.parseInt(splStart[0]), Integer.parseInt(splStart[1])),
+                    new Time(Integer.parseInt(splEnd[0]), Integer.parseInt(splEnd[1]))
             );
-        } catch (InvalidAttributeValueException e) {
+        }
+        catch (InvalidAttributeValueException e){
             return null;
         }
     }
