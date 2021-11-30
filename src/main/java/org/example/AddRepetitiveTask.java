@@ -25,7 +25,7 @@ public class AddRepetitiveTask extends AddTask {
 
     @Override
     public String getDescription() {
-        return "Add repetitive task for a day of week";
+        return "Добавляет повторяющуюся задачу на выбранный день недели";
     }
 
     @Override
@@ -76,10 +76,24 @@ public class AddRepetitiveTask extends AddTask {
         if (dayOfWeekAsInt == null)
             return false;
 
-        var interval = makeTimeInterval(dayAndStart[1], splDateTime[1]);
+        var dayOfWeekAsInt = mapOfDaysOfWeek.get(dayAndStart[0]);
+        if (dayOfWeekAsInt == null)
+            return false;
+        var end = splDateTime[1];
+        var interval = makeTimeInterval(start, end);
         if (interval == null)
             return false;
 
+        this.dayOfWeek = DayOfWeek.of(dayOfWeekAsInt);
+        this.timeInterval = interval;
+
+        return true;
+    }
+
+    private TimeInterval makeTimeInterval(String start, String end){
+        var interval = makeTimeInterval(dayAndStart[1], splDateTime[1]);
+        if (interval == null)
+            return false;
         this.dayOfWeek = DayOfWeek.of(dayOfWeekAsInt);
         this.timeInterval = interval;
 

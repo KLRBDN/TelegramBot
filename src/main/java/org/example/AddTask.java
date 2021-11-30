@@ -18,12 +18,12 @@ public class AddTask implements BotCommand {
 
     @Override
     public String getDescription() {
-        return "Adds task for some date";
+        return "Добавляет задачу на выбранную дату";
     }
     
     @Override
     public BotRequest exec(Update answer) {
-        var message = BotHelper.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
         return new BotRequest(message, this::askTimeInterval);
     }
 
@@ -77,7 +77,6 @@ public class AddTask implements BotCommand {
 
         return makeTimeInterval(splitted[0], splitted[1]);
     }
-
     protected TimeInterval makeTimeInterval(String start, String end){
         var splStart = start.split(":");
         var splEnd = end.split(":");
@@ -87,9 +86,9 @@ public class AddTask implements BotCommand {
             return new TimeInterval(
                     new Time(Integer.parseInt(splStart[0]), Integer.parseInt(splStart[1])),
                     new Time(Integer.parseInt(splEnd[0]), Integer.parseInt(splEnd[1]))
+                    new Time(Integer.parseInt(splEndTime[0]), Integer.parseInt(splEndTime[1]))
             );
-        }
-        catch (InvalidAttributeValueException e){
+        } catch (InvalidAttributeValueException e) {
             return null;
         }
     }

@@ -8,6 +8,7 @@ public interface DayInterface {
 
     Boolean deleteTask(Task task);
 
+
     Boolean completeTask(String name);
 
     ArrayList<Task> getTasks();
