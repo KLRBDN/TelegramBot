@@ -3,6 +3,7 @@ package org.example;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -10,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class AddTaskCommandTest {
     @Test
     public void addTaskCommandTest(){
+        new KeyboardConfiguration();
         addTaskCommandTest("10.10.2021 9:00 - 10:00", true);
         addTaskCommandTest("1.1.2021 9:0 - 10:0", true);
         addTaskCommandTest("29.02.2024 9:00 - 10:00", true);
@@ -34,6 +36,7 @@ public class AddTaskCommandTest {
 
     @Test
     public void addRepetitiveTaskCommandTest(){
+        new KeyboardConfiguration();
         addRepetitiveTaskCommandTest("T1 9:00 - 10:00", true);
         addRepetitiveTaskCommandTest("M 9:00 - 10:00", true);
         addRepetitiveTaskCommandTest("S1 9:00 - 10:00", true);
@@ -47,22 +50,22 @@ public class AddTaskCommandTest {
 
     public void addTaskCommandTest(String dateTime, Boolean correctFormat){
         var userAnswer = makeUserAnswer(dateTime);
-        var firstRequestText = "Write date and time in format: 10.10.2021 9:00 - 10:00";
-        var firstRequestErrorMessage = "Error: Wrong date, please try again" +
-                " and write date and time of your task in format: 10.10.2021 9:00 - 10:00";
-        checkBotRequests(userAnswer, new AddTask(),
-                firstRequestText, firstRequestErrorMessage, correctFormat);
+        var firstRequestText = "Choose the date";
+        var secondRequestText = "Write time interval of your task in format: 9:00 - 10:00";
+        checkBotRequests(userAnswer, dateTime, new AddTask(),
+                firstRequestText, secondRequestText, correctFormat);
     }
 
     public void addRepetitiveTaskCommandTest(String dayOfWeekAndTime, Boolean correctFormat){
-        var firstRequestText = "Write day of week to add repetitive task (M, T1, W, T2, F, S1, S2) " +
-                "and time in format 9:00 - 10:00. Example 'T1 9:00 - 10:00'";
+        var firstRequestText = "Write day of week to add repetitive task (M, T1, W, T2, F, S1, S2)";
+        var firstRequestErrorMessage = "Write time interval of your task in format: 9:00 - 10:00";
         var userAnswer = makeUserAnswer(dayOfWeekAndTime);
-        checkBotRequests(userAnswer, new AddRepetitiveTask(),
-                firstRequestText, firstRequestText, correctFormat);
+        userAnswer.getMessage().setText(dayOfWeekAndTime.split(" ")[0]);
+        checkBotRequests(userAnswer, dayOfWeekAndTime, new AddRepetitiveTask(),
+                firstRequestText, firstRequestErrorMessage, correctFormat);
     }
 
-    private void checkBotRequests(Update userAnswer, BotCommand addTaskCommand,
+    private void checkBotRequests(Update userAnswer, String datetime, BotCommand addTaskCommand,
                                   String firstRequestText, String firstRequestErrorMessage, Boolean correctFormat){
         var botRequestAboutTaskInfo = addTaskCommand.exec(userAnswer);
 
@@ -77,7 +80,7 @@ public class AddTaskCommandTest {
                     botRequestAboutTaskInfo.getRequestMessage().getText());
         }
         else {
-            checkBotRequestsFromNameToType(botRequestAboutTaskInfo, userAnswer);
+            checkBotRequestsFromNameToType(datetime, botRequestAboutTaskInfo, userAnswer);
         }
     }
 
@@ -91,10 +94,24 @@ public class AddTaskCommandTest {
 
         var userAnswer = new Update();
         userAnswer.setMessage(messageForUserAnswer);
+
+        var date = botRequestText.split(" ")[0];
+        var callbackQueryWithDate = new CallbackQuery(null, null, null, null, date, null, null);
+        userAnswer.setCallbackQuery(callbackQueryWithDate);
+        userAnswer.getCallbackQuery().setMessage(messageForUserAnswer);
+
         return userAnswer;
     }
 
-    private void checkBotRequestsFromNameToType(BotRequest botRequestAboutTaskInfo, Update userAnswer){
+    private void checkBotRequestsFromNameToType(String datetime, BotRequest botRequestAboutTaskInfo, Update userAnswer){
+        assertEquals("Write time interval of your task in format: 9:00 - 10:00",
+                botRequestAboutTaskInfo.getRequestMessage().getText());
+
+        var time = datetime.split(" ");
+        assert time.length == 4;
+        var timeInterval = time[1] + " " + time[2] + " " + time[3];
+        userAnswer.getMessage().setText(timeInterval);
+        botRequestAboutTaskInfo = botRequestAboutTaskInfo.handle(userAnswer, null);
         assertEquals("Write name for your task", botRequestAboutTaskInfo.getRequestMessage().getText());
 
         userAnswer.getMessage().setText("name");

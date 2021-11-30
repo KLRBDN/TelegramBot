@@ -15,8 +15,8 @@ public class AddTaskTest {
             var day = new Day(LocalDate.now());
             day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.overlapping, "test", "this is test task"));
             day.tryAddTask(new Task(new Time(2, 0), new Time(3, 0), TaskType.overlapping, "test", "this is second test task"));
-            Assertions.assertEquals(day.getTasks().size(), 1);
-            Assertions.assertEquals(day.getTasks().get(0).description, "this is test task");
+            Assertions.assertEquals(1, day.getTasks().size());
+            Assertions.assertEquals("this is test task", day.getTasks().get(0).description);
         }
         catch (InvalidAttributeValueException e){
             assert(Boolean.FALSE);
@@ -28,8 +28,8 @@ public class AddTaskTest {
         var day = new Day(LocalDate.now());
         day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.nonOverlapping, "first test", "test"));
         day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.nonOverlapping, "second test", "test"));
-        assertEquals(day.getTasks().size(), 1);
-        assertEquals(day.getTasks().get(0).name, "first test");
+        assertEquals(1, day.getTasks().size());
+        assertEquals("first test", day.getTasks().get(0).name);
     }
 
     @Test
@@ -37,8 +37,8 @@ public class AddTaskTest {
         var day = new Day(LocalDate.now());
         day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.overlapping, "first test", "test"));
         day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.overlapping, "second test", "test"));
-        assertEquals(day.getTasks().size(), 2);
-        assertEquals(day.getTasks().get(0).name, "first test");
-        assertEquals(day.getTasks().get(1).name, "second test");
+        assertEquals(2, day.getTasks().size());
+        assertEquals("first test", day.getTasks().get(0).name);
+        assertEquals("second test", day.getTasks().get(1).name);
     }
 }

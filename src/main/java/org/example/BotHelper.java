@@ -36,7 +36,6 @@ final class BotHelper {
                     || answerHandler == null)
                 answerHandler = new StandardBotRequest("");
         }
-        }
         answerHandler = answerHandler.handle(update, botCommands);
 
         answerHandler.setChatId(update);

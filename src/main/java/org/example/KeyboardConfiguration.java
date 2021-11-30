@@ -67,7 +67,7 @@ public class KeyboardConfiguration {
         inlineKeyboardMarkup.setKeyboard(buttonRowList);
         var message = new SendMessage();
         message.setChatId(Long.toString(chatId));
-        message.setText("Choose the date of task to complete");
+        message.setText("Choose the date");
         message.setReplyMarkup(inlineKeyboardMarkup);
         return message;
     }

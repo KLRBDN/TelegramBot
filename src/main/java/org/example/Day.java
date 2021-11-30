@@ -18,6 +18,7 @@ public class Day implements DayInterface {
         return date;
     }
 
+    @Override
     public Boolean tryAddTask(Task task) {
         for (Task item : this.getTasks()) {
             if (item.timeInterval.intersects(task.timeInterval))
@@ -37,15 +38,28 @@ public class Day implements DayInterface {
     }
 
     @Override
+    public Boolean deleteTask(String name) {
+        var task = getTask(name);
+        if (task == null)
+            return false;
+        return deleteTask(task);
     }
 
-    public Boolean completeTask(String name) {
+    public Task getTask(String name){
         for (Task task : getTasks())
             if (task.name.equals(name)) {
-                YearsDataBase.completedTasks.add(new Object[] { task, getTodayDate() });
-                return deleteTask(task);
+                return task;
             }
-        return false;
+        return null;
+    }
+
+    @Override
+    public Boolean completeTask(String name) {
+        var task = getTask(name);
+        if (task == null)
+            return false;
+        YearsDataBase.completedTasks.add(new Object[] { task, getTodayDate() });
+        return deleteTask(task);
     }
 
     @Override

@@ -86,7 +86,6 @@ public class AddTask implements BotCommand {
             return new TimeInterval(
                     new Time(Integer.parseInt(splStart[0]), Integer.parseInt(splStart[1])),
                     new Time(Integer.parseInt(splEnd[0]), Integer.parseInt(splEnd[1]))
-                    new Time(Integer.parseInt(splEndTime[0]), Integer.parseInt(splEndTime[1]))
             );
         } catch (InvalidAttributeValueException e) {
             return null;
