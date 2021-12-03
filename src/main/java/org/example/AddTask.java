@@ -2,12 +2,14 @@ package org.example;
 
 import javax.management.InvalidAttributeValueException;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
-    protected Object[] dayAndInterval;
-    protected Update name;
-    protected Update description;
+    private String date;
+    protected TimeInterval timeInterval;
+    protected String name;
+    protected String description;
 
     @Override
     public String getName() {
@@ -16,124 +18,102 @@ public class AddTask implements BotCommand {
 
     @Override
     public String getDescription() {
-        return "Adds task for some date";
+        return "Добавляет задачу на выбранную дату";
     }
     
     @Override
-    public BasicAnswerHandler exec() {
-        return new BasicAnswerHandler(
-                "write date and time in format: 10.10.2021 9:00 - 10:00",
+    public BotRequest exec(Update answer) {
+        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        return new BotRequest(message, this::askTimeInterval);
+    }
+
+    private BotRequest askTimeInterval(Update answer){
+        date = answer.getCallbackQuery().getData();
+        var botRequest = new SendMessage();
+        botRequest.setText("Write time interval of your task in format: 9:00 - 10:00");
+        botRequest.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));
+        return new BotRequest(botRequest, this::askTaskName);
+    }
+
+    private BotRequest askTaskName(Update answerWithTimeInterval) {
+        timeInterval = processTimeInterval(answerWithTimeInterval);
+        if (timeInterval != null)
+            return new BotRequest("Write name for your task", this::askTaskDescription);
+        return new BotRequest(
+                "Error: Wrong time, please try again and write " +
+                        "time interval of your task in format: 9:00 - 10:00",
                 this::askTaskName);
     }
 
-    private BasicAnswerHandler askTaskName(Update dateTime){
-        dayAndInterval = processDateTime(dateTime);
-        if (dayAndInterval == null)
-            return new BasicAnswerHandler(
-                    "Error: Wrong date, please try again and write date and" +
-                    " time of your task in format: 10.10.2021 9:00 - 10:00",
-                    this::askTaskName);
-        return new BasicAnswerHandler(
-                "write name for your task",
-                this::askTaskDescription);
+    protected BotRequest askTaskDescription(Update answerWithName){
+        this.name = answerWithName.getMessage().getText();
+        return new BotRequest("Write description for your task", this::askTaskType);
     }
 
-    protected BasicAnswerHandler askTaskDescription(Update name){
-        this.name = name;
-        return new BasicAnswerHandler(
-                "write description for your task",
-                this::askTaskType);
-    }
-
-    protected BasicAnswerHandler askTaskType(Update description){
-        this.description = description;
-        return new BasicAnswerHandler(
-                "write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
+    protected BotRequest askTaskType(Update answerWithDescription){
+        this.description = answerWithDescription.getMessage().getText();
+        return new BotRequest(
+                "Write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
                 this::processAnswer);
     }
 
-    private Object[] processDateTime(Update dateTimeMessage){
-        var splitted = dateTimeMessage
+    protected BotRequest processAnswer(Update answerWithTaskType){
+        if (processAnswerForTaskType(answerWithTaskType)) {
+            return new StandardBotRequest("Task was added");
+        }
+        return new BotRequest(
+                "Error: Wrong value for task type. Please try again and" +
+                " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
+                this::processAnswer);
+    }
+
+    private TimeInterval processTimeInterval(Update answer){
+        var splitted = answer
                 .getMessage()
                 .getText()
                 .split(" - ");
         if (splitted.length != 2)
             return null;
-        var dateAndStartTime = splitted[0];
-        var endTime = splitted[1];
 
-        var splDateAndStartTime = dateAndStartTime.split("[. :]");
-        if (splDateAndStartTime.length != 5)
-            return null;
-
-        var splEndTime = endTime.split(":");
-        if (splEndTime.length != 2)
-            return null;
-
-        var dateTimeIntArray = new int[7];
-        DayInterface day;
-        TimeInterval interval;
-        try {
-            for (var i = 0; i < dateTimeIntArray.length; i++){
-                dateTimeIntArray[i] = Integer.parseInt(
-                        i < 5 ? splDateAndStartTime[i] : splEndTime[i-5]);
-            }
-            day = Day.getDay(dateTimeIntArray[0], dateTimeIntArray[1], dateTimeIntArray[2]);
-            if (day == null)
-                return null;
-            interval = new TimeInterval(
-                    new Time(dateTimeIntArray[3], dateTimeIntArray[4]),
-                    new Time(dateTimeIntArray[5], dateTimeIntArray[6])
+        return makeTimeInterval(splitted[0], splitted[1]);
+    }
+    protected TimeInterval makeTimeInterval(String start, String end){
+        var splStart = start.split(":");
+        var splEnd = end.split(":");
+        if (splStart.length != 2 || splEnd.length != 2)
+            return  null;
+        try{
+            return new TimeInterval(
+                    new Time(Integer.parseInt(splStart[0]), Integer.parseInt(splStart[1])),
+                    new Time(Integer.parseInt(splEnd[0]), Integer.parseInt(splEnd[1]))
             );
-        }
-        catch (NumberFormatException | InvalidAttributeValueException e){
+        } catch (InvalidAttributeValueException e) {
             return null;
         }
-        var dayAndInterval = new Object[2];
-        dayAndInterval[0] = day;
-        dayAndInterval[1] = interval;
-        return dayAndInterval;
     }
 
-    protected BasicAnswerHandler processAnswer(Update taskType){
-        TaskType tskType;
-        int typeAsInt;
-        var errorAnswerHandler = new BasicAnswerHandler(
-                "Error: Wrong value for task type. Please try again and" +
-                " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                this::askTaskType);
+    protected Boolean processAnswerForTaskType(Update answerWithTaskType){
+        int taskTypeAsInt;
         try {
-            typeAsInt = Integer.parseInt(taskType.getMessage().getText());
+            taskTypeAsInt = Integer.parseInt(answerWithTaskType.getMessage().getText());
         } catch (NumberFormatException  e) {
-            return askTaskType(this.description);
+            return false;
         }
-        switch (typeAsInt) {
+        switch (taskTypeAsInt) {
             case 1:
-                tskType = TaskType.overlapping;
-                break;
+                return addTask(TaskType.overlapping);
             case 2:
-                tskType = TaskType.nonOverlapping;
-                break;
+                return addTask(TaskType.nonOverlapping);
             case 3:
-                tskType = TaskType.important;
-                break;
+                return addTask(TaskType.important);
             default:
-                return errorAnswerHandler;
+                return false;
         }
-        var descriptionAsStr = description.getMessage().getText();
-        var nameAsStr = name.getMessage().getText();
-        if (addTask(tskType, descriptionAsStr, nameAsStr, dayAndInterval)){
-            return new StandardAnswerHandler("Task was added");
-        }
-        return errorAnswerHandler;
     }
 
-    protected Boolean addTask(TaskType taskType, String description,
-                            String name, Object[] dayAndInterval) {
+    protected Boolean addTask(TaskType taskType) {
         try {
-            var day = (DayInterface)dayAndInterval[0];
-            var timeInterval = (TimeInterval)dayAndInterval[1];
-            return day.tryAddTask(
+            return Day.getDay(date).tryAddTask(
                     new Task(
                             timeInterval.getStart(),
                             timeInterval.getEnd(),

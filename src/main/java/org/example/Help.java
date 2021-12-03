@@ -1,5 +1,7 @@
 package org.example;
 
+import org.telegram.telegrambots.meta.api.objects.Update;
+
 import java.util.Map;
 
 public class Help implements BotCommand {
@@ -22,13 +24,13 @@ public class Help implements BotCommand {
     }
 
     @Override
-    public BasicAnswerHandler exec() {
+    public BotRequest exec(Update answer) {
         var strBuilder = new StringBuilder();
         for (var exemplar : botCommands.values())
             strBuilder.append(exemplar.getName())
                       .append(" - ")
                       .append(exemplar.getDescription())
                       .append("\n");
-        return new StandardAnswerHandler(strBuilder.toString());
+        return new StandardBotRequest(strBuilder.toString());
     } 
 }
