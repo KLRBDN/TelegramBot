@@ -7,11 +7,18 @@ import java.util.TimeZone;
 public class Day implements DayInterface {
     private final static String timeZone = "GMT+05:00";
     private final ArrayList<Task> tasks;
+    private final LocalDate date;
 
-    public Day() {
+    public Day(LocalDate date) {
         tasks = new ArrayList<>();
+        this.date = date;
     }
 
+    public LocalDate getDate(){
+        return date;
+    }
+
+    @Override
     public Boolean tryAddTask(Task task) {
         for (Task item : this.getTasks()) {
             if (item.timeInterval.intersects(task.timeInterval))
@@ -25,32 +32,60 @@ public class Day implements DayInterface {
     } 
 
     @Override
-    public Boolean deleteTask(String name) {
-        for (Task task : tasks)
-            if (task.name.equals(name)) {
-                tasks.remove(task);
-                return true;
-            }
-        return false;
+    public Boolean deleteTask(Task task) {
+        return tasks.remove(task)
+                || RepetitiveTasks.tryDeleteTask(date.getDayOfWeek(), task);
     }
 
-    public Boolean completeTask(String name) {
-        for (Task task : tasks)
+    @Override
+    public Boolean deleteTask(String name) {
+        var task = getTask(name);
+        if (task == null)
+            return false;
+        return deleteTask(task);
+    }
+
+    public Task getTask(String name){
+        for (Task task : getTasks())
             if (task.name.equals(name)) {
-                YearsDataBase.completedTasks.add(new Object[] { task, getTodayDate() });
-                return deleteTask(task.name);
+                return task;
             }
-        return false;
+        return null;
+    }
+
+    @Override
+    public Boolean completeTask(String name) {
+        var task = getTask(name);
+        if (task == null)
+            return false;
+        YearsDataBase.completedTasks.add(new Object[] { task, getTodayDate() });
+        return deleteTask(task);
     }
 
     @Override
     public ArrayList<Task> getTasks() {
-        return tasks;
+        return merge(RepetitiveTasks.getTasksFor(date.getDayOfWeek()), tasks);
+    }
+
+    private ArrayList<Task> merge(ArrayList<Task> first, ArrayList<Task> second){
+        var mergeResultList = new ArrayList<Task>(
+                first.size() + second.size());
+        mergeResultList.addAll(first);
+        mergeResultList.addAll(second);
+        return mergeResultList;
     }
 
     public static DayInterface getToday() {
         var zoneId = TimeZone.getTimeZone(timeZone).toZoneId();
         return getDay(LocalDate.now(zoneId));
+    }
+
+    public static DayInterface getDay(String date) {
+        var splitted = date.split("\\.");
+        var day = Integer.parseInt(splitted[0]);
+        var month = Integer.parseInt(splitted[1]);
+        var year = Integer.parseInt(splitted[2]);
+        return getDay(day, month, year);
     }
 
     public static DayInterface getDay(LocalDate date) {
@@ -68,11 +103,14 @@ public class Day implements DayInterface {
         return monthObject.getDay(day);
     }
 
+    public String convertToString(){
+        return date.getDayOfMonth() + "." +
+                date.getMonthValue() + "." +
+                date.getYear();
+    }
+
     public static String getTodayDate() {
-        var zoneId = TimeZone.getTimeZone(timeZone).toZoneId();
-        var todayDate = LocalDate.now(zoneId);
-        return todayDate.getDayOfMonth() + "." +
-                todayDate.getMonthValue() + "." +
-                todayDate.getYear();
+        var day = (Day)getToday();
+        return day.convertToString();
     }
 }

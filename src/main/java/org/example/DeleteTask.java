@@ -1,23 +1,21 @@
 package org.example;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
-public class CompleteTask implements BotCommand {
+public class DeleteTask implements BotCommand {
     private final KeyboardConfiguration keyboardConfig;
     private String taskName;
     private String date;
 
-    public CompleteTask() {
+    public DeleteTask() {
         super();
         keyboardConfig = new KeyboardConfiguration();
     }
 
     @Override
     public String getDescription() {
-        return "Выполняет задачу и затем удаляет её из списка активных задач";
+        return "Удаляет задачу из списка активных задач";
     }
 
     @Override
@@ -27,12 +25,20 @@ public class CompleteTask implements BotCommand {
 
     @Override
     public BotRequest exec(Update answer) {
-        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        SendMessage message;
+        if (answer.hasMessage())
+            message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        else
+            message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getCallbackQuery().getMessage().getChatId());
         return new BotRequest(message, this::askTaskName);
     }
 
     private BotRequest askTaskName(Update answer){
         date = answer.getCallbackQuery().getData();
+        if (date.equals("Next") || date.equals("Previous")) {
+            keyboardConfig.SwitchMonth(date);
+            return exec(answer);
+        }
         var botRequest = new SendMessage();
         botRequest.setText("Write name for your task");
         botRequest.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));
@@ -41,19 +47,19 @@ public class CompleteTask implements BotCommand {
 
     private BotRequest setTaskName(Update answer){
         taskName = answer.getMessage().getText();
-        if (completeTask(date, taskName))
-            return new StandardBotRequest("Task was successfully completed!");
+        if (deleteTask(date, taskName))
+            return new StandardBotRequest("Task was successfully deleted!");
         return new StandardBotRequest("There is no such task");
     }
 
-    private Boolean completeTask(String date, String name) {
+    private Boolean deleteTask(String date, String name) {
         try {
             return Day
                     .getDay(date)
-                    .completeTask(name);
+                    .deleteTask(name);
         } catch (NullPointerException e) {
             return false;
         }
     }
-  
+
 }

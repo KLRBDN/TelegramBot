@@ -1,10 +1,12 @@
 package org.example;
 
+import org.telegram.telegrambots.meta.api.objects.Update;
+
 public class GetCompletedTasks implements BotCommand{
 
     @Override
     public String getDescription() {
-        return "Returns all completed tasks of some date";
+        return "Возвращает все выполненные задачи за всё время";
     }
 
     @Override
@@ -13,7 +15,7 @@ public class GetCompletedTasks implements BotCommand{
     }
 
     @Override
-    public AnswerHandler exec() {
+    public BotRequest exec(Update answer) {
         var strBuilder = new StringBuilder();
         for (var pair : YearsDataBase.completedTasks) {
             var task = (Task) pair[0];
@@ -25,7 +27,7 @@ public class GetCompletedTasks implements BotCommand{
                     .append("\n");
         }
         if (strBuilder.length() == 0)
-            return new StandardAnswerHandler("No tasks completed");
-        return new StandardAnswerHandler(strBuilder.toString());
+            return new StandardBotRequest("No tasks completed");
+        return new StandardBotRequest(strBuilder.toString());
     }
 }

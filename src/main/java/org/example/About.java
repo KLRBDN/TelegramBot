@@ -1,7 +1,8 @@
 package org.example;
 
-public class About implements BotCommand {
+import org.telegram.telegrambots.meta.api.objects.Update;
 
+public class About implements BotCommand {
     @Override
     public String getDescription() {
         return "Возвращает имена создателей бота";
@@ -13,7 +14,7 @@ public class About implements BotCommand {
     }
 
     @Override
-    public AnswerHandler exec() {
-        return new StandardAnswerHandler("Создатели: Михаил Яскевич, Павел Овчинников");
+    public BotRequest exec(Update answer) {
+        return new StandardBotRequest("Создатели: Михаил Яскевич, Павел Овчинников");
     }
 }

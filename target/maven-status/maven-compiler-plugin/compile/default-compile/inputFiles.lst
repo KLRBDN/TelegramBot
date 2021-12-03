@@ -1,7 +1,6 @@
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\GetTasks.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\Time.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\AddTask.java
-D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\StandartAnswerHandler.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\Year.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\YearsDataBase.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\LifeSchedulerBot.java
@@ -12,8 +11,10 @@ D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\DayIn
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\Day.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\About.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\AnswerHandler.java
+D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\GetCompletedTasks.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\BotHelper.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\Main.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\TimeInterval.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\BotCommand.java
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\Help.java
+D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\main\java\org\example\StandardAnswerHandler.java
