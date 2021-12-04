@@ -72,7 +72,7 @@ public class KeyboardConfiguration {
         return message;
     }
 
-    public Boolean SwitchMonth(String action) {
+    public Boolean trySwitchMonth(String action) {
         if (action.equals("Next")) {
             monthNumber++;
             if (monthNumber == 13) {

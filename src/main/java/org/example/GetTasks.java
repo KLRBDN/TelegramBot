@@ -26,7 +26,6 @@ public class GetTasks implements BotCommand {
     private BotRequest processAnswer(Update answer){
         var date = answer.getCallbackQuery().getData();
         var tasks = processDateAndGetTasks(date);
-        // Валится на 'message.setChatId(update.getMessage().getChatId().toString());' из BotHelper.java
         var strBuilder = new StringBuilder();
         if (tasks != null) {
             for (Task task : tasks)

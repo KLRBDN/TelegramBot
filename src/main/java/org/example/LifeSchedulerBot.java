@@ -7,7 +7,6 @@ import java.util.Map;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -53,12 +52,12 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
             try {
                 var callData = update.hasCallbackQuery() ? update.getCallbackQuery().getData() : null;
                 if (callData != null && (callData.equals("Next") || callData.equals("Previous"))) {
-                    if (keyboardConfig.SwitchMonth(callData)) {
+                    if (keyboardConfig.trySwitchMonth(callData)) {
                         EditMessageReplyMarkup editedMessage = new EditMessageReplyMarkup();
                         var message = KeyboardConfiguration.sendInlineKeyBoardMessage(
                                 update.getCallbackQuery().getMessage().getChatId()
                         );
-                        editedMessage.setReplyMarkup((InlineKeyboardMarkup) message.getReplyMarkup());
+                        editedMessage.setReplyMarkup((InlineKeyboardMarkup)message.getReplyMarkup());
                         editedMessage.setChatId(message.getChatId());
                         editedMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
                         execute(editedMessage);
