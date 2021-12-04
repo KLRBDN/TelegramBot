@@ -36,7 +36,7 @@ public class DeleteTask implements BotCommand {
     private BotRequest askTaskName(Update answer){
         date = answer.getCallbackQuery().getData();
         if (date.equals("Next") || date.equals("Previous")) {
-            keyboardConfig.SwitchMonth(date);
+            keyboardConfig.trySwitchMonth(date);
             return exec(answer);
         }
         var botRequest = new SendMessage();
