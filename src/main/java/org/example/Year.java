@@ -4,17 +4,17 @@ import java.time.LocalDate;
 
 public class Year {
     public class Month {
-        private final DayInterface[] days;
+        private final Day[] days;
         private final int year;
         private final int monthNumber;
         
         public Month(int year, int monthNumber, int daysCount) {
             this.year = year;
             this.monthNumber = monthNumber;
-            this.days = new DayInterface[daysCount];
+            this.days = new Day[daysCount];
         }
 
-        public DayInterface[] getAllDays(){
+        public Day[] getAllDays(){
             return days;
         }
 
@@ -22,7 +22,7 @@ public class Year {
             return monthNumber;
         }
 
-        public DayInterface getDay(int dayNumber){
+        public Day getDay(int dayNumber){
             if (dayNumber < 1 || dayNumber > days.length)
                 return null;
             return days[dayNumber-1] != null 
@@ -30,7 +30,7 @@ public class Year {
                 : createDay(dayNumber);
         }
 
-        private DayInterface createDay(int dayNumber){
+        private Day createDay(int dayNumber){
             days[dayNumber-1] = new Day(LocalDate.of(year, monthNumber, dayNumber));
             return days[dayNumber-1];
         }

@@ -4,13 +4,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class DeleteTask implements BotCommand {
-    private final KeyboardConfiguration keyboardConfig;
     private String taskName;
     private String date;
 
     public DeleteTask() {
         super();
-        keyboardConfig = new KeyboardConfiguration();
     }
 
     @Override
@@ -27,18 +25,19 @@ public class DeleteTask implements BotCommand {
     public BotRequest exec(Update answer) {
         SendMessage message;
         if (answer.hasMessage())
-            message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+            message = KeyboardConfiguration.createCalendarKeyboard(answer.getMessage().getChatId());
         else
-            message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getCallbackQuery().getMessage().getChatId());
+            message = KeyboardConfiguration.createCalendarKeyboard(answer.getCallbackQuery().getMessage().getChatId());
         return new BotRequest(message, this::askTaskName);
     }
 
     private BotRequest askTaskName(Update answer){
         date = answer.getCallbackQuery().getData();
-        if (date.equals("Next") || date.equals("Previous")) {
-            keyboardConfig.trySwitchMonth(date);
-            return exec(answer);
-        }
+        // Зачем это здесь было?
+//        if (date.equals("Next") || date.equals("Previous")) {
+//            keyboardConfig.trySwitchMonth(date);
+//            return exec(answer);
+//        }
         var botRequest = new SendMessage();
         botRequest.setText("Write name for your task");
         botRequest.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));

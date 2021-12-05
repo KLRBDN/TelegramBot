@@ -1,18 +1,14 @@
 package org.example;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 public class CompleteTask implements BotCommand {
-    private final KeyboardConfiguration keyboardConfig;
     private String taskName;
     private String date;
 
     public CompleteTask() {
         super();
-        keyboardConfig = new KeyboardConfiguration();
     }
 
     @Override
@@ -27,7 +23,7 @@ public class CompleteTask implements BotCommand {
 
     @Override
     public BotRequest exec(Update answer) {
-        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.createCalendarKeyboard(answer.getMessage().getChatId());
         return new BotRequest(message, this::askTaskName);
     }
 
