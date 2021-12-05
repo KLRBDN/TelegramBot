@@ -20,14 +20,14 @@ public class AddTask implements BotCommand {
     public String getDescription() {
         return "Добавляет задачу на выбранную дату";
     }
-    
+
     @Override
     public BotRequest exec(Update answer) {
-        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.createCalendarKeyboard(answer.getMessage().getChatId());
         return new BotRequest(message, this::askTimeInterval);
     }
 
-    private BotRequest askTimeInterval(Update answer){
+    private BotRequest askTimeInterval(Update answer) {
         date = answer.getCallbackQuery().getData();
         var botRequest = new SendMessage();
         botRequest.setText("Write time interval of your task in format: 9:00 - 10:00");
@@ -45,29 +45,29 @@ public class AddTask implements BotCommand {
                 this::askTaskName);
     }
 
-    protected BotRequest askTaskDescription(Update answerWithName){
+    protected BotRequest askTaskDescription(Update answerWithName) {
         this.name = answerWithName.getMessage().getText();
         return new BotRequest("Write description for your task", this::askTaskType);
     }
 
-    protected BotRequest askTaskType(Update answerWithDescription){
+    protected BotRequest askTaskType(Update answerWithDescription) {
         this.description = answerWithDescription.getMessage().getText();
         return new BotRequest(
                 "Write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
                 this::processAnswer);
     }
 
-    protected BotRequest processAnswer(Update answerWithTaskType){
+    protected BotRequest processAnswer(Update answerWithTaskType) {
         if (processAnswerForTaskType(answerWithTaskType)) {
             return new StandardBotRequest("Task was added");
         }
         return new BotRequest(
                 "Error: Wrong value for task type. Please try again and" +
-                " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
+                        " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
                 this::processAnswer);
     }
 
-    private TimeInterval processTimeInterval(Update answer){
+    private TimeInterval processTimeInterval(Update answer) {
         var splitted = answer
                 .getMessage()
                 .getText()
@@ -77,12 +77,13 @@ public class AddTask implements BotCommand {
 
         return makeTimeInterval(splitted[0], splitted[1]);
     }
-    protected TimeInterval makeTimeInterval(String start, String end){
+
+    protected TimeInterval makeTimeInterval(String start, String end) {
         var splStart = start.split(":");
         var splEnd = end.split(":");
         if (splStart.length != 2 || splEnd.length != 2)
-            return  null;
-        try{
+            return null;
+        try {
             return new TimeInterval(
                     new Time(Integer.parseInt(splStart[0]), Integer.parseInt(splStart[1])),
                     new Time(Integer.parseInt(splEnd[0]), Integer.parseInt(splEnd[1]))
@@ -92,11 +93,11 @@ public class AddTask implements BotCommand {
         }
     }
 
-    protected Boolean processAnswerForTaskType(Update answerWithTaskType){
+    protected Boolean processAnswerForTaskType(Update answerWithTaskType) {
         int taskTypeAsInt;
         try {
             taskTypeAsInt = Integer.parseInt(answerWithTaskType.getMessage().getText());
-        } catch (NumberFormatException  e) {
+        } catch (NumberFormatException e) {
             return false;
         }
         switch (taskTypeAsInt) {

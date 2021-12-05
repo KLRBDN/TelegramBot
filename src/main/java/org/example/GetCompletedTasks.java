@@ -19,7 +19,7 @@ public class GetCompletedTasks implements BotCommand{
         var strBuilder = new StringBuilder();
         for (var pair : YearsDataBase.completedTasks) {
             var task = (Task) pair[0];
-            var date = (String)pair[1];
+            var date = (String) pair[1];
             strBuilder.append(task.name)
                     .append(": ")
                     .append("completed on ")
