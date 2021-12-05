@@ -9,18 +9,17 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import javax.management.InvalidAttributeValueException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.Month;
-import java.time.format.TextStyle;
 import java.util.*;
 
 public class AddRepetitiveTask extends AddTask {
     private final Map<String, Integer> mapOfDaysOfWeek;
     private final static String timeZone = "GMT+05:00";
     private LocalDate startDay;
-    private DayOfWeek dayOfWeek;
+    private Integer dayOfWeek;
+    private String pushedButtonText;
     private Integer repeatPeriod = 0;
-    private String[] timeUnits;
     private Integer timeUnitIndex = 0;
+    private String[] timeUnits;
 
     public AddRepetitiveTask(){
         mapOfDaysOfWeek = new HashMap<String, Integer>() {{
@@ -49,20 +48,30 @@ public class AddRepetitiveTask extends AddTask {
 
     @Override
     public BotRequest exec(Update answer) {
-        return askDatePattern(answer);
+        return askRepetitiveDate(answer);
     }
 
-    private BotRequest askDatePattern(Update answer) {
-        var callData = answer.hasCallbackQuery() ? answer.getCallbackQuery().getData() : null;
-        if (callData != null){
-            if (callData.equals("repeat period"))
+    private BotRequest askRepetitiveDate(Update answer) {
+        var pushedButtonText = answer.hasCallbackQuery() ? answer.getCallbackQuery().getData() : null;
+        if (pushedButtonText != null){
+            this.pushedButtonText = pushedButtonText;
+            if (pushedButtonText.equals("repeat period"))
                 repeatPeriod = (repeatPeriod + 1) % 5;
-            if (callData.equals("time unit"))
+            else if (pushedButtonText.equals("time unit"))
                 timeUnitIndex = (timeUnitIndex + 1) % 4;
-            if (callData.equals("OK")){
+            else if (pushedButtonText.equals("OK")){
                 return new BotRequest(
                         "Write time interval of your task in format: 9:00 - 10:00",
                         this::askTaskName);
+            }
+            else if (pushedButtonText.startsWith("dayOfWeek")){
+                var splittedButtonText = pushedButtonText.split("\\.");
+                if (splittedButtonText.length == 2){
+                    try{
+                        dayOfWeek = Integer.parseInt(splittedButtonText[1]);
+                    }
+                    catch (NumberFormatException ignored) {}
+                }
             }
         }
         List<List<InlineKeyboardButton>> buttonRowList = new ArrayList<>();
@@ -84,7 +93,7 @@ public class AddRepetitiveTask extends AddTask {
             for (var i = 0; i < daysOfWeek.length; i+=1){
                 var dayOfWeekButton = new InlineKeyboardButton();
                 dayOfWeekButton.setText(daysOfWeek[i]);
-                dayOfWeekButton.setCallbackData(String.format("dayOfWeek %d", i));
+                dayOfWeekButton.setCallbackData(String.format("dayOfWeek %d", i+1));
                 daysOfWeekRow.add(dayOfWeekButton);
             }
             buttonRowList.add(daysOfWeekRow);
@@ -147,19 +156,9 @@ public class AddRepetitiveTask extends AddTask {
             editedMessage.setChatId(Long.toString(
                     answer.getCallbackQuery().getMessage().getChatId()));
             editedMessage.setMessageId(answer.getCallbackQuery().getMessage().getMessageId());
-            return new BotRequest(editedMessage, this::askDatePattern);
+            return new BotRequest(editedMessage, this::askRepetitiveDate);
         }
-        return new BotRequest(message, this::askDatePattern);
-    }
-
-    private BotRequest askTimeInterval(Update answer) {
-        var dayOfWeekAsInt = mapOfDaysOfWeek.get(answer.getMessage().getText());
-        if (dayOfWeekAsInt == null)
-            return new BotRequest(
-                    "Write day of week to add repetitive task (M, T1, W, T2, F, S1, S2)",
-                    this::askTimeInterval);
-        this.dayOfWeek = DayOfWeek.of(dayOfWeekAsInt);
-        return new BotRequest("Write time interval of your task in format: 9:00 - 10:00", this::askTaskName);
+        return new BotRequest(message, this::askRepetitiveDate);
     }
 
     private BotRequest askTaskName(Update time){
@@ -172,7 +171,7 @@ public class AddRepetitiveTask extends AddTask {
     protected Boolean addTask(TaskType taskType) {
         try {
             return RepetitiveTasks.tryAddTask(
-                    dayOfWeek,
+                    new RepetitiveDate(pushedButtonText, startDay, dayOfWeek, repeatPeriod, timeUnitIndex),
                     new Task(
                             timeInterval.getStart(),
                             timeInterval.getEnd(),
