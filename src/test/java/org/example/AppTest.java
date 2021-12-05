@@ -81,7 +81,9 @@ public class AppTest
         var actual = BotHelper.FormMessage(update, botCommands);
 
         var expected = new SendMessage();
-        expected.setText(about.exec(null).getRequestMessage().getText());
+        expected.setText(
+                ((SendMessage)about.exec(null).getRequestMessage())
+                        .getText());
         expected.setChatId(chat.getId().toString());
 
         assertEquals(expected, actual);

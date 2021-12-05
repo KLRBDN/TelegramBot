@@ -3,6 +3,7 @@ package org.example;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -70,14 +71,14 @@ public class AddTaskCommandTest {
         var botRequestAboutTaskInfo = addTaskCommand.exec(userAnswer);
 
         assertEquals(firstRequestText,
-                botRequestAboutTaskInfo.getRequestMessage().getText());
+                ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
 
         botRequestAboutTaskInfo = botRequestAboutTaskInfo.handle(userAnswer, null);
 
         assert(!(botRequestAboutTaskInfo instanceof StandardBotRequest));
         if (!correctFormat){
             assertEquals(firstRequestErrorMessage,
-                    botRequestAboutTaskInfo.getRequestMessage().getText());
+                    ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
         }
         else {
             checkBotRequestsFromNameToType(datetime, botRequestAboutTaskInfo, userAnswer);
@@ -105,33 +106,33 @@ public class AddTaskCommandTest {
 
     private void checkBotRequestsFromNameToType(String datetime, BotRequest botRequestAboutTaskInfo, Update userAnswer){
         assertEquals("Write time interval of your task in format: 9:00 - 10:00",
-                botRequestAboutTaskInfo.getRequestMessage().getText());
+                ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
 
         var time = datetime.split(" ");
         assert time.length == 4;
         var timeInterval = time[1] + " " + time[2] + " " + time[3];
         userAnswer.getMessage().setText(timeInterval);
         botRequestAboutTaskInfo = botRequestAboutTaskInfo.handle(userAnswer, null);
-        assertEquals("Write name for your task", botRequestAboutTaskInfo.getRequestMessage().getText());
+        assertEquals("Write name for your task", ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
 
         userAnswer.getMessage().setText("name");
         botRequestAboutTaskInfo = botRequestAboutTaskInfo.handle(userAnswer, null);
-        assertEquals("Write description for your task", botRequestAboutTaskInfo.getRequestMessage().getText());
+        assertEquals("Write description for your task", ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
 
         userAnswer.getMessage().setText("description");
         botRequestAboutTaskInfo = botRequestAboutTaskInfo.handle(userAnswer, null);
         assertEquals("Write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                botRequestAboutTaskInfo.getRequestMessage().getText());
+                ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
 
         userAnswer.getMessage().setText("wrong answer");
         botRequestAboutTaskInfo = botRequestAboutTaskInfo.handle(userAnswer, null);
         assert(!(botRequestAboutTaskInfo instanceof StandardBotRequest));
         assertEquals("Error: Wrong value for task type. Please try again and write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                botRequestAboutTaskInfo.getRequestMessage().getText());
+                ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
 
         userAnswer.getMessage().setText("3");
         botRequestAboutTaskInfo = botRequestAboutTaskInfo.handle(userAnswer, null);
         assert(botRequestAboutTaskInfo instanceof StandardBotRequest);
-        assertEquals("Task was added", botRequestAboutTaskInfo.getRequestMessage().getText());
+        assertEquals("Task was added", ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
     }
 }

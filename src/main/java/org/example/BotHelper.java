@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -20,7 +21,7 @@ final class BotHelper {
         }
     }
 
-    public static SendMessage FormMessage(Update update, Map<String, BotCommand> botCommands) {
+    public static BotApiMethod FormMessage(Update update, Map<String, BotCommand> botCommands) {
         if (!update.hasCallbackQuery()) {
             if (update.getMessage().getText().startsWith("/")
                     || answerHandler == null)

@@ -14,6 +14,8 @@ public final class RepetitiveTasks {
     }
 
     public static Boolean tryAddTask(DayOfWeek day, Task task){
+        if (day == null)
+            return false;
         var tasks = repetitiveTasks.computeIfAbsent(day, k -> new ArrayList<>());
         for (Task tsk : tasks) {
             if (tsk.name.equals(task.name))

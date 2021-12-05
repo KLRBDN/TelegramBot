@@ -59,10 +59,15 @@ public class AddRepetitiveTask extends AddTask {
                 repeatPeriod = (repeatPeriod + 1) % 5;
             if (callData.equals("time unit"))
                 timeUnitIndex = (timeUnitIndex + 1) % 4;
+            if (callData.equals("OK")){
+                return new BotRequest(
+                        "Write time interval of your task in format: 9:00 - 10:00",
+                        this::askTaskName);
+            }
         }
         List<List<InlineKeyboardButton>> buttonRowList = new ArrayList<>();
         var repeatPeriodButton = new InlineKeyboardButton();
-        repeatPeriodButton.setText(String.format("Повтор каждый(ую) %d", repeatPeriod+1));
+        repeatPeriodButton.setText(String.format("Repeat every %d", repeatPeriod+1));
         repeatPeriodButton.setCallbackData("repeat period");
         var timeUnit = new InlineKeyboardButton();
         timeUnit.setText(String.format("%s", timeUnits[timeUnitIndex]));
@@ -75,7 +80,7 @@ public class AddRepetitiveTask extends AddTask {
 
         if (timeUnitIndex == 1){
             List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>(7);
-            var daysOfWeek = new String[] {"M", "T", "W", "T", "F", "S", "S"};
+            var daysOfWeek = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
             for (var i = 0; i < daysOfWeek.length; i+=1){
                 var dayOfWeekButton = new InlineKeyboardButton();
                 dayOfWeekButton.setText(daysOfWeek[i]);
@@ -85,47 +90,70 @@ public class AddRepetitiveTask extends AddTask {
             buttonRowList.add(daysOfWeekRow);
         }
         else if (timeUnitIndex == 2){
-            List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>(2);
+            List<InlineKeyboardButton> datePatternChoices = new ArrayList<>(2);
             var dayOfMonthButton = new InlineKeyboardButton();
-            dayOfMonthButton.setText(String.format("%d-ый день месяца", startDay.getDayOfMonth()));
-            dayOfMonthButton.setCallbackData(String.format("dayOfMonth"));
-            daysOfWeekRow.add(dayOfMonthButton);
-            buttonRowList.add(daysOfWeekRow);
+            dayOfMonthButton.setText(String.format("%dth day of month", startDay.getDayOfMonth()));
+            dayOfMonthButton.setCallbackData("dayOfMonth");
 
-//            var dayOfMonthButton = new InlineKeyboardButton();
-//            var weekNumber = (startDay.getDayOfMonth() - startDay.getDayOfWeek().getValue())/7;
-//            dayOfMonthButton.setText(String.format("%s", startDay.getDayOfWeek().toString(), startDay.);
-//            dayOfMonthButton.setCallbackData(String.format("dayOfMonth"));
-//            daysOfWeekRow.add(dayOfMonthButton);
+            var dayOfMonthAsDayOfWeek = new InlineKeyboardButton();
+            var countOfPreviousMonthDaysInFirstWeek = LocalDate
+                    .of(startDay.getYear(), startDay.getMonthValue(), 1)
+                    .getDayOfWeek()
+                    .getValue() - 1;
+            var weekNumber = ((countOfPreviousMonthDaysInFirstWeek  + startDay.getDayOfMonth() - 1)/7) + 1;
+            dayOfMonthAsDayOfWeek.setText(String.format("%s day %dth week", startDay.getDayOfWeek().toString(), weekNumber));
+            dayOfMonthAsDayOfWeek.setCallbackData("dayOfMonthAsDayOfWeek");
+
+            datePatternChoices.add(dayOfMonthButton);
+            datePatternChoices.add(dayOfMonthAsDayOfWeek);
+            buttonRowList.add(datePatternChoices);
         }
         else if (timeUnitIndex == 3){
-            List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>(2);
+            List<InlineKeyboardButton> datePatternChoices = new ArrayList<>(2);
             var dayOfMonthButton = new InlineKeyboardButton();
             dayOfMonthButton.setText(String.format("%d %s", startDay.getDayOfMonth(), startDay.getMonth().toString()));
-            dayOfMonthButton.setCallbackData(String.format("dayAndMonth"));
-            daysOfWeekRow.add(dayOfMonthButton);
-            buttonRowList.add(daysOfWeekRow);
+            dayOfMonthButton.setCallbackData("dayAndMonth");
+
+            var dayOfWeekAndMonth = new InlineKeyboardButton();
+            var countOfPreviousMonthDaysInFirstWeek = LocalDate
+                    .of(startDay.getYear(), startDay.getMonthValue(), 1)
+                    .getDayOfWeek()
+                    .getValue() - 1;
+            var weekNumber = ((countOfPreviousMonthDaysInFirstWeek  + startDay.getDayOfMonth() - 1)/7) + 1;
+            dayOfWeekAndMonth.setText(String.format("%s day of %dth week of %s",
+                    startDay.getDayOfMonth(), weekNumber, startDay.getMonth().toString()));
+            dayOfWeekAndMonth.setCallbackData("dayOfWeekAndMonth");
+
+            datePatternChoices.add(dayOfWeekAndMonth);
+            datePatternChoices.add(dayOfMonthButton);
+            buttonRowList.add(datePatternChoices);
         }
+        var okButton = new InlineKeyboardButton();
+        okButton.setText("OK");
+        okButton.setCallbackData("OK");
+        List<InlineKeyboardButton> okButtonList = new ArrayList<>(1);
+        okButtonList.add(okButton);
+        buttonRowList.add(okButtonList);
 
         var inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(buttonRowList);
         var message = new SendMessage();
-        message.setChatId(Long.toString(answer.getMessage().getChatId()));
         message.setText("What time you want task to be repeated?");
         message.setReplyMarkup(inlineKeyboardMarkup);
 
         if (answer.hasCallbackQuery()){
             EditMessageReplyMarkup editedMessage = new EditMessageReplyMarkup();
             editedMessage.setReplyMarkup((InlineKeyboardMarkup)message.getReplyMarkup());
-            editedMessage.setChatId(message.getChatId());
+            editedMessage.setChatId(Long.toString(
+                    answer.getCallbackQuery().getMessage().getChatId()));
             editedMessage.setMessageId(answer.getCallbackQuery().getMessage().getMessageId());
-            return new BotRequest(editedMessage, this::askTimeInterval);
+            return new BotRequest(editedMessage, this::askDatePattern);
         }
         return new BotRequest(message, this::askDatePattern);
     }
 
-    private BotRequest askTimeInterval(Update answerWithDayOfWeek){
-        var dayOfWeekAsInt = mapOfDaysOfWeek.get(answerWithDayOfWeek.getMessage().getText());
+    private BotRequest askTimeInterval(Update answer) {
+        var dayOfWeekAsInt = mapOfDaysOfWeek.get(answer.getMessage().getText());
         if (dayOfWeekAsInt == null)
             return new BotRequest(
                     "Write day of week to add repetitive task (M, T1, W, T2, F, S1, S2)",
