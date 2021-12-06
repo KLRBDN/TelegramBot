@@ -2,7 +2,11 @@ package org.example;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -18,6 +22,7 @@ public final class KeyboardConfiguration {
     private static int currentYear;
     private static int currentMonth;
     private static int currentDay;
+    private static final LifeSchedulerBot botInstance = LifeSchedulerBot.getInstance();
 
     public KeyboardConfiguration() {
         var dateSplitted = Day.getTodayDate().split("\\.");
@@ -26,6 +31,31 @@ public final class KeyboardConfiguration {
         currentYear = Integer.parseInt(dateSplitted[2]);
         year = currentYear;
         currentDay = Integer.parseInt(dateSplitted[0]);
+    }
+
+    public static SendMessage createCommandKeyboard(long chatId) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        KeyboardRow keyboardRow = new KeyboardRow();
+        List<KeyboardRow> keyboardRowList = new ArrayList<>();
+        var botCommands = botInstance.getBotCommands();
+        for (int i = 0; i < botCommands.size(); i++) {
+            var button = new KeyboardButton();
+            button.setText(botCommands.get(i).getName());
+            keyboardRow.add(button);
+            if (keyboardRow.size() % 4 == 0) {
+                keyboardRowList.add(keyboardRow);
+                keyboardRow = new KeyboardRow(4);
+            }
+        }
+        if (keyboardRow.size() > 0) {
+            keyboardRowList.add(keyboardRow);
+        }
+        replyKeyboardMarkup.setKeyboard(keyboardRowList);
+        var message = new SendMessage();
+        message.setChatId(Long.toString(chatId));
+        message.setText("No data");
+        message.setReplyMarkup(replyKeyboardMarkup);
+        return message;
     }
 
     public static SendMessage createWeekKeyboard(long chatId) {
@@ -54,13 +84,13 @@ public final class KeyboardConfiguration {
         List<InlineKeyboardButton> buttonRow = new ArrayList<>(7);
         List<List<InlineKeyboardButton>> buttonRowList = new ArrayList<>();
         var managerButtonNext = new InlineKeyboardButton();
-        managerButtonNext.setText("Next month >");
+        managerButtonNext.setText("Next >");
         managerButtonNext.setCallbackData("Next");
         var managerButtonPrevious = new InlineKeyboardButton();
-        managerButtonPrevious.setText("< Previous Month");
+        managerButtonPrevious.setText("< Previous");
         managerButtonPrevious.setCallbackData("Previous");
         var monthButton = new InlineKeyboardButton();
-        monthButton.setText(Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH) + ", " + year);
+        monthButton.setText(Month.of(month).getDisplayName(TextStyle.SHORT, Locale.ENGLISH) + ", " + year);
         monthButton.setCallbackData("No data");
         buttonRow.add(managerButtonPrevious);
         buttonRow.add(monthButton);

@@ -3,6 +3,7 @@ package org.example;
 import javax.management.InvalidAttributeValueException;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
@@ -38,23 +39,23 @@ public class AddTask implements BotCommand {
     private BotRequest askTaskName(Update answerWithTimeInterval) {
         timeInterval = processTimeInterval(answerWithTimeInterval);
         if (timeInterval != null)
-            return new BotRequest("Write name for your task", this::askTaskDescription);
+            return new BotRequest("Write name for your task", this::askTaskDescription, LifeSchedulerBot.messageId);
         return new BotRequest(
                 "Error: Wrong time, please try again and write " +
                         "time interval of your task in format: 9:00 - 10:00",
-                this::askTaskName);
+                this::askTaskName, LifeSchedulerBot.messageId);
     }
 
     protected BotRequest askTaskDescription(Update answerWithName) {
         this.name = answerWithName.getMessage().getText();
-        return new BotRequest("Write description for your task", this::askTaskType);
+        return new BotRequest("Write description for your task", this::askTaskType, LifeSchedulerBot.messageId);
     }
 
     protected BotRequest askTaskType(Update answerWithDescription) {
         this.description = answerWithDescription.getMessage().getText();
         return new BotRequest(
                 "Write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                this::processAnswer);
+                this::processAnswer, LifeSchedulerBot.messageId);
     }
 
     protected BotRequest processAnswer(Update answerWithTaskType) {
@@ -64,7 +65,7 @@ public class AddTask implements BotCommand {
         return new BotRequest(
                 "Error: Wrong value for task type. Please try again and" +
                         " write 1 if your task is overlapping, 2 if nonOverlapping and 3 if important",
-                this::processAnswer);
+                this::processAnswer, LifeSchedulerBot.messageId);
     }
 
     private TimeInterval processTimeInterval(Update answer) {

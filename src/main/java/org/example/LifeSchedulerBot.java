@@ -1,5 +1,7 @@
 package org.example;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +9,7 @@ import java.util.Map;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -18,6 +21,7 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
     private final YearsDataBase yearsDataBase;
     private final KeyboardConfiguration keyboardConfig;
     private final Map<String, BotCommand> botCommands;
+    public static Integer messageId;
 
     private LifeSchedulerBot(String botUsername, String botToken) {
         super();
@@ -39,6 +43,12 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
         ));
     }
 
+    public ArrayList<BotCommand> getBotCommands() {
+        var arrayList = new ArrayList<BotCommand>();
+        arrayList.addAll(botCommands.values());
+        return arrayList;
+    }
+
     public static LifeSchedulerBot getInstance() {
         if (instance == null) {
             instance = new LifeSchedulerBot("LifeScheduler_Bot", System.getenv("LifeSchedulerBotToken"));
@@ -48,6 +58,7 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        Message message;
         if ((update.hasMessage() && update.getMessage().hasText()) || (update.hasCallbackQuery() &&
                 !update.getCallbackQuery().getData().equals("No data"))) {
             try {
@@ -56,11 +67,11 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
                     if (callData.equals("Next") || callData.equals("Previous")) {
                         if (KeyboardConfiguration.trySwitchMonth(callData, false)) {
                             EditMessageReplyMarkup editedMessage = new EditMessageReplyMarkup();
-                            var message = KeyboardConfiguration.createCalendarKeyboard(
+                            var sendMessage = KeyboardConfiguration.createCalendarKeyboard(
                                     update.getCallbackQuery().getMessage().getChatId()
                             );
-                            editedMessage.setReplyMarkup((InlineKeyboardMarkup) message.getReplyMarkup());
-                            editedMessage.setChatId(message.getChatId());
+                            editedMessage.setReplyMarkup((InlineKeyboardMarkup) sendMessage.getReplyMarkup());
+                            editedMessage.setChatId(sendMessage.getChatId());
                             editedMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
                             execute(editedMessage);
                         } else {
@@ -75,8 +86,11 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
                         errorMessage.setChatId(Long.toString(update.getCallbackQuery().getMessage().getChatId()));
                         execute(errorMessage);
                     }
-                } else
-                    execute(BotHelper.FormMessage(update, botCommands));
+                } else {
+                    execute(KeyboardConfiguration.createCommandKeyboard(update.getMessage().getChatId()));
+                    message = (Message)(execute(BotHelper.FormMessage(update, botCommands)));
+                    messageId = message.getMessageId();
+                }
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
