@@ -1,6 +1,5 @@
 package org.example;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,8 +33,7 @@ public final class RepetitiveTasks {
                         || tsk.taskType != TaskType.overlapping)
                     return false;
         }
-        tasks.add(task);
-        return true;
+        return tasks.add(task);
     }
 
     public static Boolean tryDeleteTask(RepetitiveDate date, Task task){

@@ -7,14 +7,14 @@ import java.util.ArrayList;
 public class RepetitiveDate {
     private String pushedButtonText;
     private final LocalDate startDay;
-    private final ArrayList<Integer> pickedDaysOfWeek;
+    private final Boolean[] pickedDaysOfWeek;
     private final Integer repeatPeriod;
     private final Integer timeUnitIndex;
     private final Integer dayOfMonth;
     private final Integer weekNumber;
     private final MatchFinder[] matchFinders;
 
-    public RepetitiveDate(String pushedButtonText, LocalDate startDay, ArrayList<Integer> pickedDaysOfWeek,
+    public RepetitiveDate(String pushedButtonText, LocalDate startDay, Boolean[] pickedDaysOfWeek,
                           Integer repeatPeriod, Integer timeUnitIndex, Integer dayOfMonth, Integer weekNumber){
         this.pushedButtonText = pushedButtonText;
         this.startDay = startDay;
@@ -45,7 +45,7 @@ public class RepetitiveDate {
         var daysPassedSinceStart = Period.between(startDay, date).getDays();
         var weeksPassedSinceStart = (daysPassedSinceStart + startDay.getDayOfWeek().getValue()-1)/7;
         return weeksPassedSinceStart % (repeatPeriod+1) == 0
-                && pickedDaysOfWeek.contains(date.getDayOfWeek().getValue());
+                && pickedDaysOfWeek[date.getDayOfWeek().getValue()-1];
     }
 
     private Boolean repetitiveMonthMatch(LocalDate date){

@@ -14,7 +14,7 @@ public class AddRepetitiveTask extends AddTask {
     private final Map<String, Integer> mapOfDaysOfWeek;
     private final static String timeZone = "GMT+05:00";
     private LocalDate startDay;
-    private ArrayList<Integer> pickedDaysOfWeek;
+    private Boolean[] pickedDaysOfWeek;
     private Integer dayOfMonth;
     private String pushedButtonText;
     private Integer weekNumber;
@@ -32,7 +32,9 @@ public class AddRepetitiveTask extends AddTask {
             put("S1", 6);
             put("S2", 7);
         }};
-        pickedDaysOfWeek = new ArrayList<>();
+        pickedDaysOfWeek = new Boolean[7];
+        for (var i = 0; i < 7; i++)
+            pickedDaysOfWeek[i] = false;
         timeUnits = new String[] {"day", "week", "month", "year"};
         startDay = LocalDate.now(
                 TimeZone.getTimeZone(timeZone).toZoneId());
@@ -63,10 +65,7 @@ public class AddRepetitiveTask extends AddTask {
             if (splittedButtonText.length == 2){
                 try{
                     var dayOfWeek = Integer.parseInt(splittedButtonText[1]);
-                    if (pickedDaysOfWeek.contains(dayOfWeek))
-                        pickedDaysOfWeek.remove(dayOfWeek);
-                    else
-                        pickedDaysOfWeek.add(dayOfWeek);
+                    pickedDaysOfWeek[dayOfWeek-1] = !pickedDaysOfWeek[dayOfWeek-1];
                 }
                 catch (NumberFormatException ignored) {}
             }
@@ -81,9 +80,9 @@ public class AddRepetitiveTask extends AddTask {
     }
 
     private BotRequest askRepetitiveDate(Update answer) {
-        var pushedButtonText = answer.hasCallbackQuery() ? answer.getCallbackQuery().getData() : null;
+        if (answer != null)
+            pushedButtonText = answer.hasCallbackQuery() ? answer.getCallbackQuery().getData() : null;
         if (pushedButtonText != null){
-            this.pushedButtonText = pushedButtonText;
             if (pushedButtonText.equals("OK"))
                 return new BotRequest(
                         "Write time interval of your task in format: 9:00 - 10:00",
@@ -108,7 +107,7 @@ public class AddRepetitiveTask extends AddTask {
             var daysOfWeek = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
             for (var i = 0; i < daysOfWeek.length; i+=1)
                 daysOfWeekRow.add(makeInlineKeyboardButton(
-                        daysOfWeek[i].charAt(0) + ((pickedDaysOfWeek.contains(i+1)) ? " \uD83D\uDCA3" : ""),
+                        daysOfWeek[i].charAt(0) + ((pickedDaysOfWeek[i]) ? " \uD83D\uDCA3" : ""),
                         String.format("dayOfWeek %d", i+1)));
             buttonRowList.add(daysOfWeekRow);
         }
