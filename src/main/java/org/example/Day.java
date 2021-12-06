@@ -4,13 +4,16 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
-public class Day implements DayInterface {
+public class Day {
     private final static String timeZone = "GMT+05:00";
     private final ArrayList<Task> tasks;
     private final LocalDate date;
+    private int importantTasksCount = 0;
+    private final ArrayList<Task> deletedRepetitiveTasks;
 
     public Day(LocalDate date) {
         tasks = new ArrayList<>();
+        deletedRepetitiveTasks = new ArrayList<>();
         this.date = date;
     }
 
@@ -18,7 +21,6 @@ public class Day implements DayInterface {
         return date;
     }
 
-    @Override
     public Boolean tryAddTask(Task task) {
         for (Task item : this.getTasks()) {
             if (item.timeInterval.intersects(task.timeInterval))
@@ -28,16 +30,18 @@ public class Day implements DayInterface {
                 return false;
         }
         this.tasks.add(task);
+        if (task.taskType == TaskType.important)
+            this.importantTasksCount++;
         return true;
-    } 
-
-    @Override
-    public Boolean deleteTask(Task task) {
-        return tasks.remove(task)
-                || RepetitiveTasks.tryDeleteTask(date.getDayOfWeek(), task);
     }
 
-    @Override
+    public Boolean deleteTask(Task task) {
+        var deletedSuccessfully = tasks.remove(task) || deletedRepetitiveTasks.add(task);
+        if (deletedSuccessfully && task.taskType == TaskType.important)
+            this.importantTasksCount--;
+        return deletedSuccessfully;
+    }
+
     public Boolean deleteTask(String name) {
         var task = getTask(name);
         if (task == null)
@@ -53,18 +57,18 @@ public class Day implements DayInterface {
         return null;
     }
 
-    @Override
     public Boolean completeTask(String name) {
         var task = getTask(name);
-        if (task == null)
-            return false;
-        YearsDataBase.completedTasks.add(new Object[] { task, getTodayDate() });
-        return deleteTask(task);
+        return task != null && deleteTask(task)
+                && YearsDataBase.completedTasks.add(new Object[]{task, getTodayDate()});
     }
 
-    @Override
     public ArrayList<Task> getTasks() {
-        return merge(RepetitiveTasks.getTasksFor(date.getDayOfWeek()), tasks);
+        return merge(RepetitiveTasks.getTasksFor(date), tasks);
+    }
+
+    public Boolean hasImportantTasks() {
+        return this.importantTasksCount > 0;
     }
 
     private ArrayList<Task> merge(ArrayList<Task> first, ArrayList<Task> second){
@@ -75,12 +79,12 @@ public class Day implements DayInterface {
         return mergeResultList;
     }
 
-    public static DayInterface getToday() {
+    public static Day getToday() {
         var zoneId = TimeZone.getTimeZone(timeZone).toZoneId();
         return getDay(LocalDate.now(zoneId));
     }
 
-    public static DayInterface getDay(String date) {
+    public static Day getDay(String date) {
         var splitted = date.split("\\.");
         var day = Integer.parseInt(splitted[0]);
         var month = Integer.parseInt(splitted[1]);
@@ -88,11 +92,11 @@ public class Day implements DayInterface {
         return getDay(day, month, year);
     }
 
-    public static DayInterface getDay(LocalDate date) {
+    public static Day getDay(LocalDate date) {
         return getDay(date.getDayOfMonth(), date.getMonthValue(), date.getYear());
     }
 
-    public static DayInterface getDay(int day, int month, int year) {
+    public static Day getDay(int day, int month, int year) {
         var yearsDateBase = YearsDataBase.getInstance();
         var yearObject = yearsDateBase.getYear(year);
         if (yearObject == null)
@@ -103,14 +107,14 @@ public class Day implements DayInterface {
         return monthObject.getDay(day);
     }
 
-    public String convertToString(){
+    public String toString(){
         return date.getDayOfMonth() + "." +
                 date.getMonthValue() + "." +
                 date.getYear();
     }
 
     public static String getTodayDate() {
-        var day = (Day)getToday();
-        return day.convertToString();
+        var day = getToday();
+        return day.toString();
     }
 }
