@@ -9,9 +9,11 @@ public class Day {
     private final ArrayList<Task> tasks;
     private final LocalDate date;
     private int importantTasksCount = 0;
+    private final ArrayList<Task> deletedRepetitiveTasks;
 
     public Day(LocalDate date) {
         tasks = new ArrayList<>();
+        deletedRepetitiveTasks = new ArrayList<>();
         this.date = date;
     }
 
@@ -31,15 +33,13 @@ public class Day {
         if (task.taskType == TaskType.important)
             this.importantTasksCount++;
         return true;
-    } 
+    }
 
     public Boolean deleteTask(Task task) {
-        TaskType taskType = task.taskType;
-        var isDeleteSuccessful = tasks.remove(task)
-                || RepetitiveTasks.tryDeleteTask(date.getDayOfWeek(), task);
-        if (isDeleteSuccessful && taskType == TaskType.important)
+        var deletedSuccessfully = tasks.remove(task) || deletedRepetitiveTasks.add(task);
+        if (deletedSuccessfully && task.taskType == TaskType.important)
             this.importantTasksCount--;
-        return isDeleteSuccessful;
+        return deletedSuccessfully;
     }
 
     public Boolean deleteTask(String name) {
@@ -59,16 +59,12 @@ public class Day {
 
     public Boolean completeTask(String name) {
         var task = getTask(name);
-        if (task == null)
-            return false;
-        var isDeleteSuccessful = deleteTask(task);
-        if (isDeleteSuccessful)
-            YearsDataBase.completedTasks.add(new Object[]{task, getTodayDate()});
-        return isDeleteSuccessful;
+        return task != null && deleteTask(task)
+                && YearsDataBase.completedTasks.add(new Object[]{task, getTodayDate()});
     }
 
     public ArrayList<Task> getTasks() {
-        return merge(RepetitiveTasks.getTasksFor(date.getDayOfWeek()), tasks);
+        return merge(RepetitiveTasks.getTasksFor(date), tasks);
     }
 
     public Boolean hasImportantTasks() {
