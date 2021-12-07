@@ -45,7 +45,7 @@ public class AddRepetitiveTask extends AddTask {
 
     @Override
     public String getName() {
-        return "/" + this.getClass().getSimpleName().toLowerCase();
+        return "/addrepetitive";
     }
 
     @Override

@@ -14,7 +14,7 @@ public class GetTasks implements BotCommand {
 
     @Override
     public String getName() {
-        return "/" + this.getClass().getSimpleName().toLowerCase();
+        return "/tasks";
     }
 
     @Override

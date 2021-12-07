@@ -18,7 +18,7 @@ public class CompleteTask implements BotCommand {
 
     @Override
     public String getName() {
-        return "/" + this.getClass().getSimpleName().toLowerCase();
+        return "/complete";
     }
 
     @Override

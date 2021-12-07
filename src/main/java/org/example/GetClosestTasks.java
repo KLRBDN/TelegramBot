@@ -16,7 +16,7 @@ public class GetClosestTasks implements BotCommand {
 
     @Override
     public String getName() {
-        return "/" + this.getClass().getSimpleName().toLowerCase();
+        return "/closesttasks";
     }
 
     @Override

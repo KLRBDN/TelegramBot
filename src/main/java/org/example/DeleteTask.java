@@ -18,7 +18,7 @@ public class DeleteTask implements BotCommand {
 
     @Override
     public String getName() {
-        return "/" + this.getClass().getSimpleName().toLowerCase();
+        return "/delete";
     }
 
     @Override

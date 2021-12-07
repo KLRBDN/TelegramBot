@@ -40,11 +40,11 @@ public final class KeyboardConfiguration {
         var botCommands = botInstance.getBotCommands();
         for (int i = 0; i < botCommands.size(); i++) {
             var button = new KeyboardButton();
-            button.setText(botCommands.get(i).getName());
+            button.setText(botCommands.get(i));
             keyboardRow.add(button);
-            if (keyboardRow.size() % 4 == 0) {
+            if (i == 3 || i == 6) {
                 keyboardRowList.add(keyboardRow);
-                keyboardRow = new KeyboardRow(4);
+                keyboardRow = new KeyboardRow();
             }
         }
         if (keyboardRow.size() > 0) {

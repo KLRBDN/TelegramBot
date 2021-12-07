@@ -1,10 +1,7 @@
 package org.example;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -22,30 +19,30 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
     private final KeyboardConfiguration keyboardConfig;
     private final Map<String, BotCommand> botCommands;
     public static Integer messageId;
+    private static Boolean isExecuted = false;
 
     private LifeSchedulerBot(String botUsername, String botToken) {
         super();
         this.botUsername = botUsername;
         this.botToken = botToken;
-        this.botCommands = new HashMap<String, BotCommand>();
+        this.botCommands = new LinkedHashMap<String, BotCommand>();
         this.yearsDataBase = YearsDataBase.getInstance();
         this.keyboardConfig = new KeyboardConfiguration();
         BotHelper.fillBotCommandsDictionary(botCommands, Arrays.asList(
-                new About(),
                 new AddTask(),
-                new Help(botCommands),
-                new GetCompletedTasks(),
-                new GetTasks(),
-                new CompleteTask(),
                 new AddRepetitiveTask(),
+                new GetTasks(),
+                new GetClosestTasks(yearsDataBase),
+                new CompleteTask(),
+                new GetCompletedTasks(),
                 new DeleteTask(),
-                new GetClosestTasks(yearsDataBase)
+                new About(),
+                new Help(botCommands)
         ));
     }
 
-    public ArrayList<BotCommand> getBotCommands() {
-        var arrayList = new ArrayList<BotCommand>();
-        arrayList.addAll(botCommands.values());
+    public ArrayList<String> getBotCommands() {
+        var arrayList = new ArrayList<String>(botCommands.keySet());
         return arrayList;
     }
 
@@ -87,7 +84,11 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
                         execute(errorMessage);
                     }
                 } else {
-                    execute(KeyboardConfiguration.createCommandKeyboard(update.getMessage().getChatId()));
+                    // Понять, как это вообще работает;
+                    if (!isExecuted) {
+                    KeyboardConfiguration.createCommandKeyboard(update.getMessage().getChatId());
+                        isExecuted = true;
+                    }
                     message = (Message)(execute(BotHelper.FormMessage(update, botCommands)));
                     messageId = message.getMessageId();
                 }
