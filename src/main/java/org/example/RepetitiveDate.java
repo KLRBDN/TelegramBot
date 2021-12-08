@@ -2,7 +2,6 @@ package org.example;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 
 public class RepetitiveDate {
     private String pushedButtonText;
