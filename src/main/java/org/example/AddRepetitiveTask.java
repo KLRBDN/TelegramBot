@@ -19,6 +19,7 @@ public class AddRepetitiveTask extends AddTask {
     private String pushedButtonText;
     private Integer weekNumber;
     private Integer repeatPeriod = 0;
+    private Integer maxRepeatPeriod = 9;
     private Integer timeUnitIndex = 0;
     private String[] timeUnits;
 
@@ -56,10 +57,20 @@ public class AddRepetitiveTask extends AddTask {
     }
 
     private void processText(String pushedButtonText){
-        if (pushedButtonText.equals("repeat period"))
-            repeatPeriod = (repeatPeriod + 1) % 5;
-        else if (pushedButtonText.equals("time unit"))
-            timeUnitIndex = (timeUnitIndex + 1) % 4;
+        if (pushedButtonText.equals("repeat period")
+                || pushedButtonText.equals("inc repeat period"))
+            repeatPeriod = ++repeatPeriod % (maxRepeatPeriod+1);
+        else if (pushedButtonText.equals("dec repeat period")){
+            if (--repeatPeriod == -1)
+                repeatPeriod = maxRepeatPeriod;
+        }
+        else if (pushedButtonText.equals("time unit")
+                || pushedButtonText.equals("inc time unit index"))
+            timeUnitIndex = ++timeUnitIndex % timeUnits.length;
+        else if (pushedButtonText.equals("dec time unit index")){
+            if (--timeUnitIndex == -1)
+                timeUnitIndex = timeUnits.length-1;
+        }
         else if (pushedButtonText.startsWith("dayOfWeek")){
             var splittedButtonText = pushedButtonText.split(" ");
             if (splittedButtonText.length == 2){
@@ -90,17 +101,28 @@ public class AddRepetitiveTask extends AddTask {
             else
                 processText(pushedButtonText);
         }
-        var repeatPeriodButton = makeInlineKeyboardButton(
-                String.format("Repeat every %d", repeatPeriod+1), "repeat period");
-        var timeUnit = makeInlineKeyboardButton(
-                String.format("%s", timeUnits[timeUnitIndex]), "time unit");
-
-        List<InlineKeyboardButton> buttonRow = new ArrayList<>(2);
-        buttonRow.add(repeatPeriodButton);
-        buttonRow.add(timeUnit);
 
         List<List<InlineKeyboardButton>> buttonRowList = new ArrayList<>();
-        buttonRowList.add(buttonRow);
+        buttonRowList.add(new ArrayList<>(Arrays.asList(
+                makeInlineKeyboardButton(
+                        String.format("Repeat every %d", repeatPeriod+1), "repeat period"),
+                makeInlineKeyboardButton(
+                        String.format("%s", timeUnits[timeUnitIndex]), "time unit")
+        )));
+        var nextRepeatPeriod = repeatPeriod+1;
+        var prevRepeatPeriod = repeatPeriod-1 >= 0 ? repeatPeriod-1 : maxRepeatPeriod;
+        var nextTimeUnit = timeUnits[(timeUnitIndex+1)%timeUnits.length];
+        var prevTimeUnit = timeUnits[timeUnitIndex-1 >= 0 ? timeUnitIndex-1 : timeUnits.length-1];
+        buttonRowList.add(new ArrayList<>(Arrays.asList(
+                makeInlineKeyboardButton(
+                        String.format("every %d", prevRepeatPeriod+1), "dec repeat period"),
+                makeInlineKeyboardButton(
+                        String.format("every %d", nextRepeatPeriod+1), "inc repeat period"),
+                makeInlineKeyboardButton(
+                        String.format("%s", prevTimeUnit), "dec time unit index"),
+                makeInlineKeyboardButton(
+                        String.format("%s", nextTimeUnit),"inc time unit index")
+        )));
 
         if (timeUnitIndex == 1){
             List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>(7);

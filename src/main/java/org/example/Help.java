@@ -3,7 +3,6 @@ package org.example;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class Help implements BotCommand {
 
