@@ -77,29 +77,47 @@ public final class KeyboardConfiguration {
         return message;
     }
 
-    public static SendMessage createCalendarKeyboard(long chatId) {
+    public static SendMessage createMessageWithCalendarKeyboard(long chatId) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        var yearsDataBase = YearsDataBase.getInstance();
-        var days = yearsDataBase.getYear(year).getMonth(month).getAllDays();
-        List<InlineKeyboardButton> buttonRow = new ArrayList<>(7);
-        List<List<InlineKeyboardButton>> buttonRowList = new ArrayList<>();
+        trySwitchMonth("Previous", false);
+        inlineKeyboardMarkup.setKeyboard(createCalendarKeyboard());
+
+        var message = new SendMessage();
+        message.setChatId(Long.toString(chatId));
+        message.setText("Choose the date");
+        message.setReplyMarkup(inlineKeyboardMarkup);
+
+        return message;
+    }
+
+    public static List<List<InlineKeyboardButton>> createCalendarKeyboard() {
+        var days =  YearsDataBase.getInstance()
+                .getYear(year).getMonth(month).getAllDays();
+
         var managerButtonNext = new InlineKeyboardButton();
         managerButtonNext.setText("Next >");
         managerButtonNext.setCallbackData("Next");
+
         var managerButtonPrevious = new InlineKeyboardButton();
         managerButtonPrevious.setText("< Previous");
         managerButtonPrevious.setCallbackData("Previous");
+
         var monthButton = new InlineKeyboardButton();
         monthButton.setText(Month.of(month).getDisplayName(TextStyle.SHORT, Locale.ENGLISH) + ", " + year);
         monthButton.setCallbackData("No data");
+
+        List<InlineKeyboardButton> buttonRow = new ArrayList<>(7);
         buttonRow.add(managerButtonPrevious);
         buttonRow.add(monthButton);
         buttonRow.add(managerButtonNext);
+
+        List<List<InlineKeyboardButton>> buttonRowList = new ArrayList<>();
         buttonRowList.add(buttonRow);
+
         buttonRow = new ArrayList<>(7);
         var monthFirstDayOfWeek = LocalDate.of(year, month, 1).getDayOfWeek().getValue();
         trySwitchMonth("Previous", true);
-        var daysCount = yearsDataBase.getYear(year).getMonth(month).getAllDays().length;
+        var daysCount = days.length;
         for (int i = daysCount - monthFirstDayOfWeek + 2; i <= daysCount; i++) {
             var button = new InlineKeyboardButton();
             button.setText(generateTextToButton(i));
@@ -143,13 +161,7 @@ public final class KeyboardConfiguration {
             }
         }
         buttonRowList.add(buttonRow);
-        trySwitchMonth("Previous", false);
-        inlineKeyboardMarkup.setKeyboard(buttonRowList);
-        var message = new SendMessage();
-        message.setChatId(Long.toString(chatId));
-        message.setText("Choose the date");
-        message.setReplyMarkup(inlineKeyboardMarkup);
-        return message;
+        return buttonRowList;
     }
 
     public static Boolean trySwitchMonth(String action, Boolean ignoreErrors) {
