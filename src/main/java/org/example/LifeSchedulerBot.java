@@ -1,6 +1,5 @@
 package org.example;
 
-import java.io.Serializable;
 import java.util.*;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -64,7 +63,7 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
                     if (callData.equals("Next") || callData.equals("Previous")) {
                         if (KeyboardConfiguration.trySwitchMonth(callData, false)) {
                             EditMessageReplyMarkup editedMessage = new EditMessageReplyMarkup();
-                            var sendMessage = KeyboardConfiguration.createCalendarKeyboard(
+                            var sendMessage = KeyboardConfiguration.createMessageWithCalendarKeyboard(
                                     update.getCallbackQuery().getMessage().getChatId()
                             );
                             editedMessage.setReplyMarkup((InlineKeyboardMarkup) sendMessage.getReplyMarkup());

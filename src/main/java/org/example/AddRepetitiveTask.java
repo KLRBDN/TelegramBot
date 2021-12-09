@@ -61,17 +61,17 @@ public class AddRepetitiveTask extends AddTask {
     }
 
     private EditMessageReplyMarkup processButtonText(String pushedButtonText, Message messageToEdit){
+        if (pushedButtonText.split("\\.").length == 3)
+            startDay = Day.getDay(pushedButtonText).getDate();
+        else if (pushedButtonText.equals("start day"))
+            return showCalendarKeyboard(messageToEdit);
         if (pushedButtonText.equals("repeat period"))
             return showAllRepeatPeriods(messageToEdit);
-        else if (pushedButtonText.startsWith("repeat period ")){
+        else if (pushedButtonText.startsWith("repeat period-")){
             try{
                 repeatPeriod = Integer.parseInt(pushedButtonText.split("-")[1])-1;
             }
             catch (NumberFormatException ignored) {}
-        }
-        else if (pushedButtonText.equals("dec repeat period")){
-            if (--repeatPeriod == -1)
-                repeatPeriod = maxRepeatPeriod;
         }
         else if (pushedButtonText.equals("time unit"))
             return showAllTimeUnits(messageToEdit);
@@ -89,10 +89,6 @@ public class AddRepetitiveTask extends AddTask {
             pickedDaysInMonthAndYearFormat[2] = !pickedDaysInMonthAndYearFormat[2];
         else if (pushedButtonText.equals("dayOfWeekAndMonth"))
             pickedDaysInMonthAndYearFormat[3] = !pickedDaysInMonthAndYearFormat[3];
-        else if (pushedButtonText.equals("dec time unit index")){
-            if (--timeUnitIndex == -1)
-                timeUnitIndex = timeUnits.length-1;
-        }
         else if (pushedButtonText.startsWith("dayOfWeek")){
             var splittedButtonText = pushedButtonText.split(" ");
             if (splittedButtonText.length == 2){
@@ -104,6 +100,12 @@ public class AddRepetitiveTask extends AddTask {
             }
         }
         return null;
+    }
+
+    private EditMessageReplyMarkup showCalendarKeyboard(Message messageToEdit) {
+        var repetitiveDateConstructor = new InlineKeyboardMarkup();
+        repetitiveDateConstructor.setKeyboard(KeyboardConfiguration.createCalendarKeyboard());
+        return getEditedDateConstructorMessage(repetitiveDateConstructor, messageToEdit);
     }
 
     private EditMessageReplyMarkup showAllTimeUnits(Message messageToEdit) {
@@ -220,8 +222,8 @@ public class AddRepetitiveTask extends AddTask {
                     return new BotRequest(editedDateConstructorMessage, this::askRepetitiveDate);
             }
         }
-
-        List<List<InlineKeyboardButton>> dateConstructorKeyboard = new ArrayList<>();
+        var dateConstructorKeyboard = new ArrayList<>(List.of(List.of(
+                        makeInlineKeyboardButton("Start day: " + startDay.toString(), "start day"))));
         dateConstructorKeyboard.add(new ArrayList<>(Arrays.asList(
                 makeInlineKeyboardButton(
                         String.format("Repeat every %d", repeatPeriod+1), "repeat period"),

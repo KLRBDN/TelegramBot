@@ -3,7 +3,6 @@ package org.example;
 import javax.management.InvalidAttributeValueException;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
@@ -24,7 +23,7 @@ public class AddTask implements BotCommand {
 
     @Override
     public BotRequest exec(Update answer) {
-        var message = KeyboardConfiguration.createCalendarKeyboard(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.createMessageWithCalendarKeyboard(answer.getMessage().getChatId());
         return new BotRequest(message, this::askTimeInterval);
     }
 

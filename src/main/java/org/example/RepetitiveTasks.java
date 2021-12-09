@@ -13,11 +13,13 @@ public final class RepetitiveTasks {
         return tasks == null ? new ArrayList<>() : tasks;
     }
 
-    public static ArrayList<Task> getTasksFor(LocalDate date){
+    public static ArrayList<Task> getTasksFor(LocalDate date, ArrayList<Task> deletedRepetitiveTasks){
         var allTasks = new ArrayList<Task>();
         for (var entry: repetitiveDatesAndTasks.entrySet())
             if (entry.getKey().match(date))
-                allTasks.addAll(entry.getValue());
+                for (var task: entry.getValue())
+                    if (!deletedRepetitiveTasks.contains(task))
+                        allTasks.add(task);
         return allTasks;
     }
 

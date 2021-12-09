@@ -25,9 +25,9 @@ public class DeleteTask implements BotCommand {
     public BotRequest exec(Update answer) {
         SendMessage message;
         if (answer.hasMessage())
-            message = KeyboardConfiguration.createCalendarKeyboard(answer.getMessage().getChatId());
+            message = KeyboardConfiguration.createMessageWithCalendarKeyboard(answer.getMessage().getChatId());
         else
-            message = KeyboardConfiguration.createCalendarKeyboard(answer.getCallbackQuery().getMessage().getChatId());
+            message = KeyboardConfiguration.createMessageWithCalendarKeyboard(answer.getCallbackQuery().getMessage().getChatId());
         return new BotRequest(message, this::askTaskName);
     }
 

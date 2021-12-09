@@ -64,7 +64,7 @@ public class Day {
     }
 
     public ArrayList<Task> getTasks() {
-        return merge(RepetitiveTasks.getTasksFor(date), tasks);
+        return merge(RepetitiveTasks.getTasksFor(date, deletedRepetitiveTasks), tasks);
     }
 
     public Boolean hasImportantTasks() {
