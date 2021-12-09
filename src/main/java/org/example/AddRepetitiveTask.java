@@ -13,29 +13,18 @@ import java.time.format.TextStyle;
 import java.util.*;
 
 public class AddRepetitiveTask extends AddTask {
-    private final Map<String, Integer> mapOfDaysOfWeek;
     private final static String timeZone = "GMT+05:00";
     private LocalDate startDay;
-    private Boolean[] pickedDaysOfWeek;
+    private final Boolean[] pickedDaysOfWeek;
     private Integer dayOfMonth;
-    private Boolean[] pickedDaysInMonthAndYearFormat;
+    private final Boolean[] pickedDaysInMonthAndYearFormat;
     private String pushedButtonText;
     private Integer weekNumber;
     private Integer repeatPeriod = 0;
-    private Integer maxRepeatPeriod = 9;
     private Integer timeUnitIndex = 0;
-    private String[] timeUnits;
+    private final String[] timeUnits;
 
     public AddRepetitiveTask(){
-        mapOfDaysOfWeek = new HashMap<>() {{
-            put("M", 1);
-            put("T1", 2);
-            put("W", 3);
-            put("T2", 4);
-            put("F", 5);
-            put("S1", 6);
-            put("S2", 7);
-        }};
         pickedDaysInMonthAndYearFormat = new Boolean[] {false, false, false, false};
         pickedDaysOfWeek = new Boolean[7];
         for (var i = 0; i < 7; i++)
@@ -58,6 +47,34 @@ public class AddRepetitiveTask extends AddTask {
     @Override
     public BotRequest exec(Update answer) {
         return askRepetitiveDate(answer);
+    }
+
+    public LocalDate getStartDay(){
+        return startDay;
+    }
+
+    public Boolean[] getPickedDaysOfWeek(){
+        return pickedDaysOfWeek;
+    }
+
+    public Integer getRepeatPeriod(){
+        return repeatPeriod;
+    }
+
+    public Integer getTimeUnitIndex(){
+        return timeUnitIndex;
+    }
+
+    public Integer getDayOfMonth(){
+        return dayOfMonth;
+    }
+
+    public Integer getWeekNumber(){
+        return weekNumber;
+    }
+
+    public Boolean[] getPickedDaysInMonthAndYearFormat(){
+        return pickedDaysInMonthAndYearFormat;
     }
 
     private EditMessageReplyMarkup processButtonText(String pushedButtonText, Message messageToEdit){
@@ -271,8 +288,7 @@ public class AddRepetitiveTask extends AddTask {
     protected Boolean addTask(TaskType taskType) {
         try {
             return RepetitiveTasks.tryAddTask(
-                    new RepetitiveDate(pushedButtonText, startDay,
-                            pickedDaysOfWeek, repeatPeriod, timeUnitIndex, dayOfMonth, weekNumber),
+                    new RepetitiveDate(this),
                     new Task(
                             timeInterval.getStart(),
                             timeInterval.getEnd(),
