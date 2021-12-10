@@ -92,9 +92,4 @@ public class AddRepetitiveTaskTest {
 
         return repetitiveDateRequest;
     }
-
-    @Test
-    public void addRepetitiveTaskTest(){
-        var date = new RepetitiveDate(startDay, pickedDaysOfWeek, repeatPeriod, timeUnitIndex, dayOfMonth, weekNumber);
-    }
 }
