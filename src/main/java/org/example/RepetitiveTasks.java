@@ -59,4 +59,8 @@ public final class RepetitiveTasks {
         }
         return false;
     }
+
+    public static void clearAll(){
+        repetitiveDatesAndTasks.clear();
+    }
 }

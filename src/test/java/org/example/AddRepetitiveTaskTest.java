@@ -13,7 +13,7 @@ public class AddRepetitiveTaskTest {
         keyboardStateTest("repeat period", 2, 5, 5,
                 "repeat period-2", 3, 1, 2, 1);
         keyboardStateTest("time unit", 2, 2, 2,
-                "time unit-1", 4, 1, 2, 7);
+                "time unit-week", 4, 1, 2, 7);
         keyboardStateTest("start day", 7, 3, 7,
                 "10.12.2021", 3, 1, 2, 1);
     }
@@ -54,7 +54,7 @@ public class AddRepetitiveTaskTest {
         if (secondCallbackData.equals("repeat period-2")){
             assert(dateConstructorKeyboard.get(1).get(0).getText().equals("Repeat every 2"));
         }
-        if (secondCallbackData.equals("time unit-1")) {
+        if (secondCallbackData.equals("time unit-week")) {
             assert(dateConstructorKeyboard.get(1).get(1).getText().equals("week"));
             pickingButtonsText(repetitiveDateRequest, userAnswer);
         }

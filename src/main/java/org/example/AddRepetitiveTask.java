@@ -7,7 +7,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import javax.management.InvalidAttributeValueException;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -83,7 +82,7 @@ public class AddRepetitiveTask extends AddTask {
             return showAllTimeUnits(messageToEdit);
         else if (pushedButtonText.startsWith("time unit-")){
             try{
-                timeUnit.name().equals(pushedButtonText.split("-")[1]);
+                timeUnit = TimeUnit.valueOf(pushedButtonText.split("-")[1]);
             }
             catch (NumberFormatException ignored) {}
         }

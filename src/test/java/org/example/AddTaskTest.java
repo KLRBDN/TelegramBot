@@ -9,10 +9,15 @@ import javax.management.InvalidAttributeValueException;
 import java.time.LocalDate;
 
 public class AddTaskTest {
+    public AddTaskTest(){
+        RepetitiveTasks.clearAll();
+    }
+
     @Test
     public void addingTwoTasksWithSameNameWontWork(){
         try{
             var day = new Day(LocalDate.now());
+            new Task(new Time(0, 0), new Time(1, 0), TaskType.overlapping, "test", "this is test task");
             day.tryAddTask(new Task(new Time(0, 0), new Time(1, 0), TaskType.overlapping, "test", "this is test task"));
             day.tryAddTask(new Task(new Time(2, 0), new Time(3, 0), TaskType.overlapping, "test", "this is second test task"));
             Assertions.assertEquals(1, day.getTasks().size());
