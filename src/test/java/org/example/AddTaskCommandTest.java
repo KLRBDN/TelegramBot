@@ -5,8 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTaskCommandTest {
@@ -68,15 +66,7 @@ public class AddTaskCommandTest {
     }
 
     private Update makeUserAnswer(String botRequestText, String callbackData){
-        var currentChat = new Chat();
-        currentChat.setId(1L);
-
-        var messageForUserAnswer = new Message();
-        messageForUserAnswer.setText(botRequestText);
-        messageForUserAnswer.setChat(currentChat);
-
-        var userAnswer = new Update();
-        userAnswer.setMessage(messageForUserAnswer);
+        var userAnswer = RepetitiveTasksTest.makeUserAnswer(botRequestText);
         userAnswer.setCallbackQuery(new CallbackQuery(
                 null, null, null, null, callbackData, null, null));
         userAnswer.getCallbackQuery().setMessage(userAnswer.getMessage());

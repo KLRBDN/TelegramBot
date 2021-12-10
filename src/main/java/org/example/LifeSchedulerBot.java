@@ -24,7 +24,7 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
         super();
         this.botUsername = botUsername;
         this.botToken = botToken;
-        this.botCommands = new LinkedHashMap<String, BotCommand>();
+        this.botCommands = new LinkedHashMap<>();
         this.yearsDataBase = YearsDataBase.getInstance();
         this.keyboardConfig = new KeyboardConfiguration();
         BotHelper.fillBotCommandsDictionary(botCommands, Arrays.asList(
@@ -36,12 +36,13 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
                 new GetCompletedTasks(),
                 new DeleteTask(),
                 new About(),
-                new Help(botCommands)
+                new Help(botCommands),
+                new CancelRepetitiveTask()
         ));
     }
 
     public ArrayList<String> getBotCommands() {
-        var arrayList = new ArrayList<String>(botCommands.keySet());
+        var arrayList = new ArrayList<>(botCommands.keySet());
         return arrayList;
     }
 

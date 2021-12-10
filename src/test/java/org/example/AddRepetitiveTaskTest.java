@@ -5,11 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import java.time.LocalDate;
 
 public class AddRepetitiveTaskTest {
     @Test
@@ -26,17 +22,8 @@ public class AddRepetitiveTaskTest {
                                    int firstKeyboardFirstRowSize, int firstKeyboardSecondRowSize,
                                    String secondCallbackData, int secondRowsCount,
                                    int secondKeyboardFirstRowSize, int secondKeyboardSecondRowSize, int secondKeyboardThirdRowSize){
-        var currentChat = new Chat();
-        currentChat.setId(1L);
-
-        var messageForUserAnswer = new Message();
-        messageForUserAnswer.setText("/addrepetitive");
-        messageForUserAnswer.setChat(currentChat);
-
-        var userAnswer = new Update();
-        userAnswer.setMessage(messageForUserAnswer);
-        var cmd = new AddRepetitiveTask();
-        var repetitiveDateRequest = cmd.exec(userAnswer);
+        var userAnswer = RepetitiveTasksTest.makeUserAnswer("/addrepetitive");
+        var repetitiveDateRequest = new AddRepetitiveTask().exec(userAnswer);
         assert(repetitiveDateRequest.getRequestMessage() instanceof SendMessage);
 
         userAnswer.setCallbackQuery(new CallbackQuery(

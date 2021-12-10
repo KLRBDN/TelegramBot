@@ -1,6 +1,5 @@
 package org.example;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,12 +12,12 @@ public final class RepetitiveTasks {
         return tasks == null ? new ArrayList<>() : tasks;
     }
 
-    public static ArrayList<Task> getTasksFor(LocalDate date, ArrayList<Task> deletedRepetitiveTasks){
+    public static ArrayList<Task> getTasksFor(Day day){
         var allTasks = new ArrayList<Task>();
         for (var entry: repetitiveDatesAndTasks.entrySet())
-            if (entry.getKey().match(date))
+            if (entry.getKey().match(day.getDate()))
                 for (var task: entry.getValue())
-                    if (!deletedRepetitiveTasks.contains(task))
+                    if (!day.getDeletedRepetitiveTasks().contains(task))
                         allTasks.add(task);
         return allTasks;
     }
@@ -43,5 +42,21 @@ public final class RepetitiveTasks {
         if (tasks == null)
             return false;
         return tasks.remove(task);
+    }
+
+    public static Boolean tryDeleteTask(String taskName) {
+        for (Map.Entry<RepetitiveDate, ArrayList<Task>> entry: repetitiveDatesAndTasks.entrySet()) {
+            var tasks = entry.getValue();
+            for (Task task: tasks) {
+                if (task.name.equals(taskName)){
+                    if (tasks.size() == 1){
+                        repetitiveDatesAndTasks.remove(entry.getKey());
+                        return true;
+                    }
+                    return tasks.remove(task);
+                }
+            }
+        }
+        return false;
     }
 }

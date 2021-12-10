@@ -21,6 +21,10 @@ public class Day {
         return date;
     }
 
+    public ArrayList<Task> getDeletedRepetitiveTasks(){
+        return deletedRepetitiveTasks;
+    }
+
     public Boolean tryAddTask(Task task) {
         for (Task item : this.getTasks()) {
             if (item.timeInterval.intersects(task.timeInterval))
@@ -64,7 +68,7 @@ public class Day {
     }
 
     public ArrayList<Task> getTasks() {
-        return merge(RepetitiveTasks.getTasksFor(date, deletedRepetitiveTasks), tasks);
+        return merge(RepetitiveTasks.getTasksFor(this), tasks);
     }
 
     public Boolean hasImportantTasks() {

@@ -267,16 +267,9 @@ public class AddRepetitiveTask extends AddTask {
 
     @Override
     protected Boolean addTask(TaskType taskType) {
-        try {
-            return RepetitiveTasks.tryAddTask(
-                    new RepetitiveDate(this),
-                    new Task(
-                            timeInterval.getStart(),
-                            timeInterval.getEnd(),
-                            taskType, name, description));
-        } catch (InvalidAttributeValueException | NullPointerException e) {
-            return false;
-        }
+        var task = makeTask(taskType);
+        return task != null && RepetitiveTasks.tryAddTask(
+                new RepetitiveDate(this), task);
     }
 
     private Boolean tryProcessDateTime(Update dateTime){
