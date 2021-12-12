@@ -25,9 +25,10 @@ public class GetClosestTasksTest {
         var botRequestWithClosestTasks =
                 new GetClosestTasks(YearsDataBase.getInstance()).exec(userAnswer);
         assert botRequestWithClosestTasks instanceof StandardBotRequest;
-        Assertions.assertEquals("‼️1: 12.12.2021 09:00-10:00\n" +
-                        "‼️2: 12.12.2021 10:00-11:00\n" +
-                        "‼️3: 12.12.2021 11:00-12:00\n",
+        Assertions.assertEquals(String.format("‼️1: %s 09:00-10:00\n" +
+                        "‼️2: %s 10:00-11:00\n" +
+                        "‼️3: %s 11:00-12:00\n",
+                        Day.getTodayDate(), Day.getTodayDate(), Day.getTodayDate()),
                 ((SendMessage)botRequestWithClosestTasks.getRequestMessage()).getText());
     }
 }

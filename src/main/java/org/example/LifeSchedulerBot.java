@@ -84,9 +84,8 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
                         execute(errorMessage);
                     }
                 } else {
-                    // Понять, как это вообще работает;
                     if (!isExecuted) {
-                    KeyboardConfiguration.createCommandKeyboard(update.getMessage().getChatId());
+                        execute(KeyboardConfiguration.createCommandKeyboard(update.getMessage().getChatId()));
                         isExecuted = true;
                     }
                     message = (Message)(execute(BotHelper.FormMessage(update, botCommands)));
