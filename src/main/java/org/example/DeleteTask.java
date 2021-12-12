@@ -4,8 +4,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class DeleteTask implements BotCommand {
-    private String taskName;
-    private String date;
+    protected String taskName;
+    protected String date;
 
     public DeleteTask() {
         super();
@@ -25,13 +25,13 @@ public class DeleteTask implements BotCommand {
     public BotRequest exec(Update answer) {
         SendMessage message;
         if (answer.hasMessage())
-            message = KeyboardConfiguration.createCalendarKeyboard(answer.getMessage().getChatId());
+            message = KeyboardConfiguration.createMessageWithCalendarKeyboard(answer.getMessage().getChatId());
         else
-            message = KeyboardConfiguration.createCalendarKeyboard(answer.getCallbackQuery().getMessage().getChatId());
+            message = KeyboardConfiguration.createMessageWithCalendarKeyboard(answer.getCallbackQuery().getMessage().getChatId());
         return new BotRequest(message, this::askTaskName);
     }
 
-    private BotRequest askTaskName(Update answer){
+    protected BotRequest askTaskName(Update answer){
         date = answer.getCallbackQuery().getData();
         // Зачем это здесь было?
 //        if (date.equals("Next") || date.equals("Previous")) {
@@ -44,21 +44,14 @@ public class DeleteTask implements BotCommand {
         return new BotRequest(botRequest, this::setTaskName);
     }
 
-    private BotRequest setTaskName(Update answer){
+    protected BotRequest setTaskName(Update answer){
         taskName = answer.getMessage().getText();
         if (deleteTask(date, taskName))
             return new StandardBotRequest("Task was successfully deleted!");
         return new StandardBotRequest("There is no such task");
     }
 
-    private Boolean deleteTask(String date, String name) {
-        try {
-            return Day
-                    .getDay(date)
-                    .deleteTask(name);
-        } catch (NullPointerException e) {
-            return false;
-        }
+    protected Boolean deleteTask(String date, String name) {
+        return Day.getDay(date).deleteTask(name);
     }
-
 }

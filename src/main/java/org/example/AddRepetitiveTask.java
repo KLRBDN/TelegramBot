@@ -2,42 +2,32 @@ package org.example;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import javax.management.InvalidAttributeValueException;
 import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.*;
 
 public class AddRepetitiveTask extends AddTask {
-    private final Map<String, Integer> mapOfDaysOfWeek;
     private final static String timeZone = "GMT+05:00";
     private LocalDate startDay;
-    private Boolean[] pickedDaysOfWeek;
-    private Integer dayOfMonth;
+    private final Boolean[] pickedDaysOfWeek;
+    private final Boolean[] pickedDaysInMonthAndYearFormat;
     private String pushedButtonText;
-    private Integer weekNumber;
     private Integer repeatPeriod = 0;
-    private Integer timeUnitIndex = 0;
-    private String[] timeUnits;
+    private TimeUnit timeUnit;
 
     public AddRepetitiveTask(){
-        mapOfDaysOfWeek = new HashMap<String, Integer>() {{
-            put("M", 1);
-            put("T1", 2);
-            put("W", 3);
-            put("T2", 4);
-            put("F", 5);
-            put("S1", 6);
-            put("S2", 7);
-        }};
+        pickedDaysInMonthAndYearFormat = new Boolean[] {false, false, false, false};
         pickedDaysOfWeek = new Boolean[7];
         for (var i = 0; i < 7; i++)
             pickedDaysOfWeek[i] = false;
-        timeUnits = new String[] {"day", "week", "month", "year"};
         startDay = LocalDate.now(
                 TimeZone.getTimeZone(timeZone).toZoneId());
+        timeUnit = TimeUnit.day;
     }
 
     @Override
@@ -55,11 +45,55 @@ public class AddRepetitiveTask extends AddTask {
         return askRepetitiveDate(answer);
     }
 
-    private void processText(String pushedButtonText){
+    public LocalDate getStartDay(){
+        return startDay;
+    }
+
+    public Boolean[] getPickedDaysOfWeek(){
+        return pickedDaysOfWeek;
+    }
+
+    public Integer getRepeatPeriod(){
+        return repeatPeriod;
+    }
+
+    public Boolean[] getPickedDaysInMonthAndYearFormat(){
+        return pickedDaysInMonthAndYearFormat;
+    }
+
+    public TimeUnit getTimeUnit(){
+        return timeUnit;
+    }
+
+    private EditMessageReplyMarkup processButtonText(String pushedButtonText, Message messageToEdit){
+        if (pushedButtonText.split("\\.").length == 3)
+            startDay = Day.getDay(pushedButtonText).getDate();
+        else if (pushedButtonText.equals("start day"))
+            return showCalendarKeyboard(messageToEdit);
         if (pushedButtonText.equals("repeat period"))
-            repeatPeriod = (repeatPeriod + 1) % 5;
+            return showAllRepeatPeriods(messageToEdit);
+        else if (pushedButtonText.startsWith("repeat period-")){
+            try{
+                repeatPeriod = Integer.parseInt(pushedButtonText.split("-")[1])-1;
+            }
+            catch (NumberFormatException ignored) {}
+        }
         else if (pushedButtonText.equals("time unit"))
-            timeUnitIndex = (timeUnitIndex + 1) % 4;
+            return showAllTimeUnits(messageToEdit);
+        else if (pushedButtonText.startsWith("time unit-")){
+            try{
+                timeUnit = TimeUnit.valueOf(pushedButtonText.split("-")[1]);
+            }
+            catch (NumberFormatException ignored) {}
+        }
+        else if (pushedButtonText.equals("dayOfMonth"))
+            pickedDaysInMonthAndYearFormat[0] = !pickedDaysInMonthAndYearFormat[0];
+        else if (pushedButtonText.equals("dayOfMonthAsDayOfWeek"))
+            pickedDaysInMonthAndYearFormat[1] = !pickedDaysInMonthAndYearFormat[1];
+        else if (pushedButtonText.equals("dayAndMonth"))
+            pickedDaysInMonthAndYearFormat[2] = !pickedDaysInMonthAndYearFormat[2];
+        else if (pushedButtonText.equals("dayOfWeekAndMonth"))
+            pickedDaysInMonthAndYearFormat[3] = !pickedDaysInMonthAndYearFormat[3];
         else if (pushedButtonText.startsWith("dayOfWeek")){
             var splittedButtonText = pushedButtonText.split(" ");
             if (splittedButtonText.length == 2){
@@ -70,99 +104,158 @@ public class AddRepetitiveTask extends AddTask {
                 catch (NumberFormatException ignored) {}
             }
         }
+        return null;
     }
 
-    private InlineKeyboardButton makeInlineKeyboardButton(String text, String callbackData){
-        var repeatPeriodButton = new InlineKeyboardButton();
-        repeatPeriodButton.setText(text);
-        repeatPeriodButton.setCallbackData(callbackData);
-        return repeatPeriodButton;
+    private EditMessageReplyMarkup showCalendarKeyboard(Message messageToEdit) {
+        var repetitiveDateConstructor = new InlineKeyboardMarkup();
+        repetitiveDateConstructor.setKeyboard(KeyboardConfiguration.createCalendarKeyboard());
+        return getEditedDateConstructorMessage(repetitiveDateConstructor, messageToEdit);
+    }
+
+    private EditMessageReplyMarkup showAllTimeUnits(Message messageToEdit) {
+        var repetitiveDateConstructor = new InlineKeyboardMarkup();
+        repetitiveDateConstructor.setKeyboard(new ArrayList<>(Arrays.asList(
+                        new ArrayList<>(Arrays.asList(
+                                makeInlineKeyboardButton(TimeUnit.day.name(), "time unit-day"),
+                                makeInlineKeyboardButton(TimeUnit.week.name(), "time unit-week"))),
+                        new ArrayList<>(Arrays.asList(
+                                makeInlineKeyboardButton(TimeUnit.month.name(), "time unit-month"),
+                                makeInlineKeyboardButton(TimeUnit.year.name(), "time unit-year")))
+        )));
+        return getEditedDateConstructorMessage(repetitiveDateConstructor, messageToEdit);
+    }
+
+    private EditMessageReplyMarkup showAllRepeatPeriods(Message messageToEdit) {
+        List<InlineKeyboardButton> periodsFromOneToFive = new ArrayList<>(5);
+        List<InlineKeyboardButton> periodsFromSixToTen = new ArrayList<>(5);
+        for (var i = 1; i < 6; i++){
+            var j = i;
+            periodsFromOneToFive.add(makeInlineKeyboardButton(
+                    Integer.toString(j), "repeat period-" + j));
+            periodsFromSixToTen.add(makeInlineKeyboardButton(
+                    Integer.toString(j+5), "repeat period-" + (j+5)));
+        }
+        var repetitiveDateConstructor = new InlineKeyboardMarkup();
+        repetitiveDateConstructor.setKeyboard(new ArrayList<>(
+                Arrays.asList(periodsFromOneToFive, periodsFromSixToTen)));
+
+        return getEditedDateConstructorMessage(repetitiveDateConstructor, messageToEdit);
+    }
+
+    private InlineKeyboardButton makeInlineKeyboardButton(String text, String callbackData) {
+        var button = new InlineKeyboardButton();
+        button.setText(text);
+        button.setCallbackData(callbackData);
+        return button;
+    }
+
+    @FunctionalInterface
+    private interface buttonsListMaker {
+        List<InlineKeyboardButton> makeButtonsList();
+    }
+
+    private List<InlineKeyboardButton> makeDaysOfWeekButtonsRow() {
+        List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>(7);
+        var daysOfWeek = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        for (var i = 0; i < daysOfWeek.length; i+=1)
+            daysOfWeekRow.add(makeInlineKeyboardButton(
+                    daysOfWeek[i].charAt(0) + ((pickedDaysOfWeek[i]) ? " \uD83D\uDCA3" : ""),
+                    String.format("dayOfWeek %d", i+1)));
+        return daysOfWeekRow;
+    }
+
+    private List<InlineKeyboardButton> makeDayOfMonthButtonsRow() {
+        return new ArrayList<>(Arrays.asList(
+                makeInlineKeyboardButton(
+                        String.format("%s%dth day",
+                                pickedDaysInMonthAndYearFormat[0] ? " \uD83D\uDCA3" : "", startDay.getDayOfMonth()),
+                        "dayOfMonth"),
+                makeInlineKeyboardButton(
+                        String.format("%s%s, %dth week",
+                                pickedDaysInMonthAndYearFormat[1] ? " \uD83D\uDCA3" : "",
+                                startDay.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
+                                RepetitiveDate.getWeekNumber(startDay)),
+                        "dayOfMonthAsDayOfWeek")));
+    }
+
+    private List<InlineKeyboardButton> makeDayOfYearButtonsRow() {
+        return new ArrayList<>(Arrays.asList(
+                makeInlineKeyboardButton(
+                        String.format("%s%d %s", pickedDaysInMonthAndYearFormat[2] ? " \uD83D\uDCA3" : "",
+                                startDay.getDayOfMonth(),
+                                startDay.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH)),
+                        "dayAndMonth"),
+                makeInlineKeyboardButton(
+                        String.format("%s%s,%d week,%s",
+                                pickedDaysInMonthAndYearFormat[3] ? " \uD83D\uDCA3" : "",
+                                startDay.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
+                                RepetitiveDate.getWeekNumber(startDay),
+                                startDay.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH)),
+                        "dayOfWeekAndMonth")));
+    }
+
+    private List<InlineKeyboardButton> makeAppropriateButtonsRow(){
+        if (timeUnit.equals(TimeUnit.week))
+            return makeDaysOfWeekButtonsRow();
+        if (timeUnit.equals(TimeUnit.month))
+            return makeDayOfMonthButtonsRow();
+        return timeUnit.equals(TimeUnit.year) ? makeDayOfYearButtonsRow() : null;
     }
 
     private BotRequest askRepetitiveDate(Update answer) {
-        if (answer != null)
+        if (answer != null){
             pushedButtonText = answer.hasCallbackQuery() ? answer.getCallbackQuery().getData() : null;
-        if (pushedButtonText != null){
-            if (pushedButtonText.equals("OK"))
-                return new BotRequest(
-                        "Write time interval of your task in format: 9:00 - 10:00",
-                        this::askTaskName);
-            else
-                processText(pushedButtonText);
+            if (pushedButtonText != null){
+                if (pushedButtonText.equals("OK")) {
+                    return new BotRequest(
+                            "Write time interval of your task in format: 9:00 - 10:00",
+                            this::askTaskName);
+                }
+                var editedDateConstructorMessage =
+                        processButtonText(pushedButtonText, answer.getCallbackQuery().getMessage());
+                if (editedDateConstructorMessage != null)
+                    return new BotRequest(editedDateConstructorMessage, this::askRepetitiveDate);
+            }
         }
-        var repeatPeriodButton = makeInlineKeyboardButton(
-                String.format("Repeat every %d", repeatPeriod+1), "repeat period");
-        var timeUnit = makeInlineKeyboardButton(
-                String.format("%s", timeUnits[timeUnitIndex]), "time unit");
+        var dateConstructorKeyboard = new ArrayList<>(List.of(List.of(
+                        makeInlineKeyboardButton("Start day: " + startDay.toString(), "start day"))));
+        dateConstructorKeyboard.add(new ArrayList<>(Arrays.asList(
+                makeInlineKeyboardButton(
+                        String.format("Repeat every %d", repeatPeriod+1), "repeat period"),
+                makeInlineKeyboardButton(
+                        String.format("%s", timeUnit.name()), "time unit")
+        )));
+        var appropriateButtonsRow = makeAppropriateButtonsRow();
+        if (appropriateButtonsRow != null)
+            dateConstructorKeyboard.add(appropriateButtonsRow);
+        dateConstructorKeyboard.add(List.of(
+                makeInlineKeyboardButton("OK", "OK")));
 
-        List<InlineKeyboardButton> buttonRow = new ArrayList<>(2);
-        buttonRow.add(repeatPeriodButton);
-        buttonRow.add(timeUnit);
+        var repetitiveDateConstructor = new InlineKeyboardMarkup();
+        repetitiveDateConstructor.setKeyboard(dateConstructorKeyboard);
 
-        List<List<InlineKeyboardButton>> buttonRowList = new ArrayList<>();
-        buttonRowList.add(buttonRow);
+        var botQuestionAboutTime = new SendMessage();
+        botQuestionAboutTime.setText("What time you want task to be repeated?");
+        botQuestionAboutTime.setReplyMarkup(repetitiveDateConstructor);
 
-        if (timeUnitIndex == 1){
-            List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>(7);
-            var daysOfWeek = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-            for (var i = 0; i < daysOfWeek.length; i+=1)
-                daysOfWeekRow.add(makeInlineKeyboardButton(
-                        daysOfWeek[i].charAt(0) + ((pickedDaysOfWeek[i]) ? " \uD83D\uDCA3" : ""),
-                        String.format("dayOfWeek %d", i+1)));
-            buttonRowList.add(daysOfWeekRow);
-        }
-        else if (timeUnitIndex == 2){
-            var dayOfMonthButton = makeInlineKeyboardButton(
-                    String.format("%dth day of month", startDay.getDayOfMonth()), "dayOfMonth");
-            dayOfMonth = startDay.getDayOfMonth();
+        if (answer == null || !answer.hasCallbackQuery())
+            return new BotRequest(botQuestionAboutTime, this::askRepetitiveDate);
 
-            var weekNumber = RepetitiveDate.getWeekNumber(startDay);
-            var dayOfMonthAsDayOfWeek = makeInlineKeyboardButton(
-                    String.format("%s day %dth week", startDay.getDayOfWeek().toString(), weekNumber),
-                    "dayOfMonthAsDayOfWeek");
-            this.weekNumber = weekNumber;
+        return new BotRequest(
+                getEditedDateConstructorMessage(
+                        repetitiveDateConstructor, answer.getCallbackQuery().getMessage()),
+                this::askRepetitiveDate);
+    }
 
-            List<InlineKeyboardButton> repetitiveDateFormatChoices = new ArrayList<>(2);
-            repetitiveDateFormatChoices.add(dayOfMonthButton);
-            repetitiveDateFormatChoices.add(dayOfMonthAsDayOfWeek);
-            buttonRowList.add(repetitiveDateFormatChoices);
-        }
-        else if (timeUnitIndex == 3){
-            var dayOfMonthButton = makeInlineKeyboardButton(
-                    String.format("%d %s", startDay.getDayOfMonth(), startDay.getMonth().toString()), "dayAndMonth");
-            dayOfMonth = startDay.getDayOfMonth();
+    private EditMessageReplyMarkup getEditedDateConstructorMessage(InlineKeyboardMarkup repetitiveDateConstructor, Message messageToEdit){
+        EditMessageReplyMarkup editedDateCtorMessage = new EditMessageReplyMarkup();
 
-            var weekNumber = RepetitiveDate.getWeekNumber(startDay);
-            this.weekNumber = weekNumber;
-            var dayOfWeekAndMonth = makeInlineKeyboardButton(
-                    String.format("%s day of %dth week of %s",
-                            startDay.getDayOfMonth(), weekNumber, startDay.getMonth().toString()),
-                    "dayOfWeekAndMonth"
-            );
-            List<InlineKeyboardButton> repetitiveDateFormatChoices = new ArrayList<>(2);
-            repetitiveDateFormatChoices.add(dayOfWeekAndMonth);
-            repetitiveDateFormatChoices.add(dayOfMonthButton);
-            buttonRowList.add(repetitiveDateFormatChoices);
-        }
-        var okButton = makeInlineKeyboardButton("OK", "OK");
-        buttonRowList.add(List.of(okButton));
+        editedDateCtorMessage.setReplyMarkup(repetitiveDateConstructor);
+        editedDateCtorMessage.setChatId(Long.toString(messageToEdit.getChatId()));
+        editedDateCtorMessage.setMessageId(messageToEdit.getMessageId());
 
-        var inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(buttonRowList);
-        var message = new SendMessage();
-        message.setText("What time you want task to be repeated?");
-        message.setReplyMarkup(inlineKeyboardMarkup);
-
-        if (!answer.hasCallbackQuery())
-            return new BotRequest(message, this::askRepetitiveDate);
-
-        EditMessageReplyMarkup editedMessage = new EditMessageReplyMarkup();
-        editedMessage.setReplyMarkup(inlineKeyboardMarkup);
-        var callbackQueryMessage = answer.getCallbackQuery().getMessage();
-        editedMessage.setChatId(Long.toString(callbackQueryMessage.getChatId()));
-        editedMessage.setMessageId(callbackQueryMessage.getMessageId());
-
-        return new BotRequest(editedMessage, this::askRepetitiveDate);
+        return editedDateCtorMessage;
     }
 
     private BotRequest askTaskName(Update time){
@@ -173,17 +266,9 @@ public class AddRepetitiveTask extends AddTask {
 
     @Override
     protected Boolean addTask(TaskType taskType) {
-        try {
-            return RepetitiveTasks.tryAddTask(
-                    new RepetitiveDate(pushedButtonText, startDay,
-                            pickedDaysOfWeek, repeatPeriod, timeUnitIndex, dayOfMonth, weekNumber),
-                    new Task(
-                            timeInterval.getStart(),
-                            timeInterval.getEnd(),
-                            taskType, name, description));
-        } catch (InvalidAttributeValueException | NullPointerException e) {
-            return false;
-        }
+        var task = makeTask(taskType);
+        return task != null && RepetitiveTasks.tryAddTask(
+                new RepetitiveDate(this), task);
     }
 
     private Boolean tryProcessDateTime(Update dateTime){

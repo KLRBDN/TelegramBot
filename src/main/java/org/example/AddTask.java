@@ -3,7 +3,6 @@ package org.example;
 import javax.management.InvalidAttributeValueException;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class AddTask implements BotCommand {
@@ -24,7 +23,7 @@ public class AddTask implements BotCommand {
 
     @Override
     public BotRequest exec(Update answer) {
-        var message = KeyboardConfiguration.createCalendarKeyboard(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.createMessageWithCalendarKeyboard(answer.getMessage().getChatId());
         return new BotRequest(message, this::askTimeInterval);
     }
 
@@ -113,15 +112,19 @@ public class AddTask implements BotCommand {
         }
     }
 
-    protected Boolean addTask(TaskType taskType) {
+    protected Task makeTask(TaskType taskType){
         try {
-            return Day.getDay(date).tryAddTask(
-                    new Task(
-                            timeInterval.getStart(),
-                            timeInterval.getEnd(),
-                            taskType, name, description));
-        } catch (ClassCastException | InvalidAttributeValueException | NullPointerException e) {
-            return false;
+            return new Task(timeInterval.getStart(), timeInterval.getEnd(), taskType, name, description);
+        } catch (InvalidAttributeValueException e) {
+            return null;
         }
+    }
+
+    protected Boolean addTask(TaskType taskType) {
+        var task = makeTask(taskType);
+        if (task == null)
+            return false;
+        var day = Day.getDay(date);
+        return day != null ? day.tryAddTask(task) : false;
     }
 }

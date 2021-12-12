@@ -1,6 +1,5 @@
 package org.example;
 
-import java.io.Serializable;
 import java.util.*;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -25,7 +24,7 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
         super();
         this.botUsername = botUsername;
         this.botToken = botToken;
-        this.botCommands = new LinkedHashMap<String, BotCommand>();
+        this.botCommands = new LinkedHashMap<>();
         this.yearsDataBase = YearsDataBase.getInstance();
         this.keyboardConfig = new KeyboardConfiguration();
         BotHelper.fillBotCommandsDictionary(botCommands, Arrays.asList(
@@ -37,12 +36,13 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
                 new GetCompletedTasks(),
                 new DeleteTask(),
                 new About(),
-                new Help(botCommands)
+                new Help(botCommands),
+                new CancelRepetitiveTask()
         ));
     }
 
     public ArrayList<String> getBotCommands() {
-        var arrayList = new ArrayList<String>(botCommands.keySet());
+        var arrayList = new ArrayList<>(botCommands.keySet());
         return arrayList;
     }
 
@@ -64,7 +64,7 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
                     if (callData.equals("Next") || callData.equals("Previous")) {
                         if (KeyboardConfiguration.trySwitchMonth(callData, false)) {
                             EditMessageReplyMarkup editedMessage = new EditMessageReplyMarkup();
-                            var sendMessage = KeyboardConfiguration.createCalendarKeyboard(
+                            var sendMessage = KeyboardConfiguration.createMessageWithCalendarKeyboard(
                                     update.getCallbackQuery().getMessage().getChatId()
                             );
                             editedMessage.setReplyMarkup((InlineKeyboardMarkup) sendMessage.getReplyMarkup());

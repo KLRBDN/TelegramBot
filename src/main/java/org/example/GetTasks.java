@@ -19,7 +19,7 @@ public class GetTasks implements BotCommand {
 
     @Override
     public BotRequest exec(Update answer) {
-        var message = KeyboardConfiguration.createCalendarKeyboard(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.createMessageWithCalendarKeyboard(answer.getMessage().getChatId());
         return new BotRequest(message, this::processAnswer);
     }
 

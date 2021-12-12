@@ -2,33 +2,41 @@ package org.example;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class RepetitiveDate {
-    private String pushedButtonText;
     private final LocalDate startDay;
     private final Boolean[] pickedDaysOfWeek;
     private final Integer repeatPeriod;
-    private final Integer timeUnitIndex;
-    private final Integer dayOfMonth;
-    private final Integer weekNumber;
-    private final MatchFinder[] matchFinders;
+    private final TimeUnit timeUnit;
+    private final HashMap<TimeUnit, MatchFinder> matchFinders;
+    private final Boolean[] pickedDaysInMonthAndYearFormat;
 
-    public RepetitiveDate(String pushedButtonText, LocalDate startDay, Boolean[] pickedDaysOfWeek,
-                          Integer repeatPeriod, Integer timeUnitIndex, Integer dayOfMonth, Integer weekNumber){
-        this.pushedButtonText = pushedButtonText;
-        this.startDay = startDay;
+    public RepetitiveDate(AddRepetitiveTask addRepetitiveTaskCmd){
+        this.pickedDaysOfWeek = addRepetitiveTaskCmd.getPickedDaysOfWeek();
+        this.pickedDaysInMonthAndYearFormat = addRepetitiveTaskCmd.getPickedDaysInMonthAndYearFormat();
+        this.startDay = addRepetitiveTaskCmd.getStartDay();
+        this.repeatPeriod = addRepetitiveTaskCmd.getRepeatPeriod();
+        this.timeUnit = addRepetitiveTaskCmd.getTimeUnit();
+        matchFinders = new HashMap<>();
+        matchFinders.put(TimeUnit.day, this::repetitiveDayMatch);
+        matchFinders.put(TimeUnit.week, this::repetitiveWeekMatch);
+        matchFinders.put(TimeUnit.month, this::repetitiveMonthMatch);
+        matchFinders.put(TimeUnit.year, this::repetitiveYearMatch);
+    }
+
+    public RepetitiveDate(Boolean[] pickedDaysOfWeek, Boolean[] pickedDaysInMonthAndYearFormat,
+                          LocalDate startDay, Integer repeatPeriod, TimeUnit timeUnit){
         this.pickedDaysOfWeek = pickedDaysOfWeek;
-        this.repeatPeriod = repeatPeriod;
-        this.timeUnitIndex = timeUnitIndex;
-        this.dayOfMonth = dayOfMonth;
-        this.weekNumber = weekNumber;
-        this.matchFinders = new MatchFinder[] {
-                this::repetitiveDayMatch,
-                this::repetitiveWeekMatch,
-                this::repetitiveMonthMatch,
-                this::repetitiveYearMatch
-        };
+        this.pickedDaysInMonthAndYearFormat = pickedDaysInMonthAndYearFormat;
+        this.startDay = startDay;
+        this.repeatPeriod = repeatPeriod-1;
+        this.timeUnit = timeUnit;
+        matchFinders = new HashMap<>();
+        matchFinders.put(TimeUnit.day, this::repetitiveDayMatch);
+        matchFinders.put(TimeUnit.week, this::repetitiveWeekMatch);
+        matchFinders.put(TimeUnit.month, this::repetitiveMonthMatch);
+        matchFinders.put(TimeUnit.year, this::repetitiveYearMatch);
     }
 
     @FunctionalInterface
@@ -51,22 +59,21 @@ public class RepetitiveDate {
     private Boolean repetitiveMonthMatch(LocalDate date){
         var monthsPassedSinceStart = Period.between(startDay, date).getMonths();
         return monthsPassedSinceStart % (repeatPeriod+1) == 0
-                && oneOfTwoFormatsMatch(date);
+                && oneOfTwoFormatsMatch(date, pickedDaysInMonthAndYearFormat[0], pickedDaysInMonthAndYearFormat[1]);
     }
 
     private Boolean repetitiveYearMatch(LocalDate date){
         var yearsPassedSinceStart = Period.between(startDay, date).getYears();
         return yearsPassedSinceStart % (repeatPeriod+1) == 0
                 && startDay.getMonth() == date.getMonth()
-                && oneOfTwoFormatsMatch(date);
+                && oneOfTwoFormatsMatch(date, pickedDaysInMonthAndYearFormat[2], pickedDaysInMonthAndYearFormat[3]);
     }
 
-    private Boolean oneOfTwoFormatsMatch(LocalDate date){
-        if (dayOfMonth != null)
-            return dayOfMonth == date.getDayOfMonth();
-        return weekNumber != null
-                && startDay.getDayOfWeek() == date.getDayOfWeek()
-                && weekNumber == getWeekNumber(date);
+    private Boolean oneOfTwoFormatsMatch(LocalDate date, Boolean dayOfMonthPicked, Boolean dayOfWeekPicked) {
+        return dayOfMonthPicked && startDay.getDayOfMonth() == date.getDayOfMonth()
+                || dayOfWeekPicked
+                    && startDay.getDayOfWeek() == date.getDayOfWeek()
+                    && getWeekNumber(startDay) == getWeekNumber(date);
     }
 
     public static int getWeekNumber(LocalDate date){
@@ -78,6 +85,6 @@ public class RepetitiveDate {
     }
 
     public Boolean match(LocalDate date){
-        return matchFinders[timeUnitIndex].match(date);
+        return matchFinders.get(timeUnit).match(date);
     }
 }

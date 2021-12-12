@@ -11,7 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public class AppTest 
+public class AppTest
 {
     @Test
     public void fillBotCommandsDictionaryTest()
@@ -59,7 +59,7 @@ public class AppTest
         );
 
         BotHelper.fillBotCommandsDictionary(expected, commandsToPut);
-        
+
         assertEquals(expected, new HashMap<String, BotCommand>());
     }
 
