@@ -34,6 +34,10 @@ public class AddTaskCommandTest {
         addTaskCommandTest("10.20.2021 9:00 - 10:00", false);
     }
 
+    private void addTaskCommandTest(String dateTime, Boolean correctFormat){
+        addTaskCommandTest(dateTime, "name", correctFormat);
+    }
+
     @Test
     public void addRepetitiveTaskCommandTest(){
         new KeyboardConfiguration();
@@ -46,14 +50,14 @@ public class AddTaskCommandTest {
         addRepetitiveTaskCommandTest("9:00-10:00", false);
     }
 
-    public void addTaskCommandTest(String dateTime, Boolean correctFormat){
+    public void addTaskCommandTest(String dateTime, String taskName, Boolean correctFormat){
         var firstBotRequestText = "Choose the date";
         var secondBotRequestText = "Write time interval of your task in format: 9:00 - 10:00";
 
         var userAnswer = makeUserAnswer(dateTime, dateTime.split(" ")[0]);
 
         checkBotRequests(userAnswer, dateTime, new AddTask(),
-                firstBotRequestText, secondBotRequestText, correctFormat);
+                firstBotRequestText, secondBotRequestText, correctFormat, taskName);
     }
 
     public void addRepetitiveTaskCommandTest(String timeInterval, Boolean correctFormat){
@@ -63,7 +67,7 @@ public class AddTaskCommandTest {
         var userAnswer = makeUserAnswer(timeInterval, "OK");
 
         checkBotRequests(userAnswer, timeInterval, new AddRepetitiveTask(),
-                botRequestText, botRequestErrorMessage, correctFormat);
+                botRequestText, botRequestErrorMessage, correctFormat, "name");
     }
 
     private Update makeUserAnswer(String botRequestText, String callbackData){
@@ -76,7 +80,7 @@ public class AddTaskCommandTest {
     }
 
     private void checkBotRequests(Update userAnswer, String datetime, BotCommand addTaskCommand,
-                                  String firstRequestText, String firstRequestErrorMessage, Boolean correctFormat){
+                                  String firstRequestText, String firstRequestErrorMessage, Boolean correctFormat, String taskName){
         var botRequestAboutTaskInfo = addTaskCommand.exec(userAnswer);
 
         assertEquals(firstRequestText,
@@ -89,11 +93,11 @@ public class AddTaskCommandTest {
             assertEquals(firstRequestErrorMessage,
                     ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
         else
-            checkBotRequestsFromNameToType(datetime, botRequestAboutTaskInfo, userAnswer, addTaskCommand);
+            checkBotRequestsFromNameToType(datetime, botRequestAboutTaskInfo, userAnswer, addTaskCommand, taskName);
     }
 
     private void checkBotRequestsFromNameToType(String datetime, BotRequest botRequestAboutTaskInfo,
-                                                Update userAnswer, BotCommand addTaskCommand){
+                                                Update userAnswer, BotCommand addTaskCommand, String taskName){
         if (!(addTaskCommand instanceof AddRepetitiveTask)){
             assertEquals("Write time interval of your task in format: 9:00 - 10:00",
                     ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
@@ -107,7 +111,7 @@ public class AddTaskCommandTest {
         }
         else
             assertEquals("Write name for your task", ((SendMessage)botRequestAboutTaskInfo.getRequestMessage()).getText());
-        userAnswer.getMessage().setText("name");
+        userAnswer.getMessage().setText(taskName);
         botRequestAboutTaskInfo = botRequestAboutTaskInfo.handle(userAnswer, null);
         assertEquals("Write description for your task", ((EditMessageText)botRequestAboutTaskInfo.getRequestMessage()).getText());
 
