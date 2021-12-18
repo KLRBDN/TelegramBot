@@ -1,20 +1,31 @@
 package org.example;
 
-import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class RepetitiveTasks {
-    private static final Map<DayOfWeek, ArrayList<Task>> repetitiveTasks = new HashMap<>();
+    private static final Map<RepetitiveDate, ArrayList<Task>> repetitiveDatesAndTasks = new HashMap<>();
 
-    public static ArrayList<Task> getTasksFor(DayOfWeek day){
-        var tasks = repetitiveTasks.get(day);
+    public static ArrayList<Task> getTasksFor(RepetitiveDate date){
+        var tasks = repetitiveDatesAndTasks.get(date);
         return tasks == null ? new ArrayList<>() : tasks;
     }
 
-    public static Boolean tryAddTask(DayOfWeek day, Task task){
-        var tasks = repetitiveTasks.computeIfAbsent(day, k -> new ArrayList<>());
+    public static ArrayList<Task> getTasksFor(Day day){
+        var allTasks = new ArrayList<Task>();
+        for (var entry: repetitiveDatesAndTasks.entrySet())
+            if (entry.getKey().match(day.getDate()))
+                for (var task: entry.getValue())
+                    if (!day.getDeletedRepetitiveTasks().contains(task))
+                        allTasks.add(task);
+        return allTasks;
+    }
+
+    public static Boolean tryAddTask(RepetitiveDate date, Task task){
+        if (date == null)
+            return false;
+        var tasks = repetitiveDatesAndTasks.computeIfAbsent(date, k -> new ArrayList<>());
         for (Task tsk : tasks) {
             if (tsk.name.equals(task.name))
                 return false;
@@ -23,14 +34,33 @@ public final class RepetitiveTasks {
                         || tsk.taskType != TaskType.overlapping)
                     return false;
         }
-        tasks.add(task);
-        return true;
+        return tasks.add(task);
     }
 
-    public static Boolean tryDeleteTask(DayOfWeek day, Task task){
-        var tasks = repetitiveTasks.get(day);
+    public static Boolean tryDeleteTask(RepetitiveDate date, Task task){
+        var tasks = repetitiveDatesAndTasks.get(date);
         if (tasks == null)
             return false;
         return tasks.remove(task);
+    }
+
+    public static Boolean tryDeleteTask(String taskName) {
+        for (Map.Entry<RepetitiveDate, ArrayList<Task>> entry: repetitiveDatesAndTasks.entrySet()) {
+            var tasks = entry.getValue();
+            for (Task task: tasks) {
+                if (task.name.equals(taskName)){
+                    if (tasks.size() == 1){
+                        repetitiveDatesAndTasks.remove(entry.getKey());
+                        return true;
+                    }
+                    return tasks.remove(task);
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void clearAll(){
+        repetitiveDatesAndTasks.clear();
     }
 }

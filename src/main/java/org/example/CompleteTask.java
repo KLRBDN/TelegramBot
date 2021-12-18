@@ -1,18 +1,8 @@
 package org.example;
 
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-
-public class CompleteTask implements BotCommand {
-    private final KeyboardConfiguration keyboardConfig;
-    private String taskName;
-    private String date;
-
+public class CompleteTask extends DeleteTask {
     public CompleteTask() {
         super();
-        keyboardConfig = new KeyboardConfiguration();
     }
 
     @Override
@@ -22,38 +12,11 @@ public class CompleteTask implements BotCommand {
 
     @Override
     public String getName() {
-        return "/" + this.getClass().getSimpleName().toLowerCase();
+        return "/complete";
     }
 
     @Override
-    public BotRequest exec(Update answer) {
-        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
-        return new BotRequest(message, this::askTaskName);
+    protected Boolean deleteTask(String date, String name) {
+        return Day.getDay(date).completeTask(name);
     }
-
-    private BotRequest askTaskName(Update answer){
-        date = answer.getCallbackQuery().getData();
-        var botRequest = new SendMessage();
-        botRequest.setText("Write name for your task");
-        botRequest.setChatId(Long.toString(answer.getCallbackQuery().getMessage().getChatId()));
-        return new BotRequest(botRequest, this::setTaskName);
-    }
-
-    private BotRequest setTaskName(Update answer){
-        taskName = answer.getMessage().getText();
-        if (completeTask(date, taskName))
-            return new StandardBotRequest("Task was successfully completed!");
-        return new StandardBotRequest("There is no such task");
-    }
-
-    private Boolean completeTask(String date, String name) {
-        try {
-            return Day
-                    .getDay(date)
-                    .completeTask(name);
-        } catch (NullPointerException e) {
-            return false;
-        }
-    }
-  
 }

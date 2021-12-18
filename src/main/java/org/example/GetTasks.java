@@ -14,19 +14,18 @@ public class GetTasks implements BotCommand {
 
     @Override
     public String getName() {
-        return "/" + this.getClass().getSimpleName().toLowerCase();
+        return "/tasks";
     }
 
     @Override
     public BotRequest exec(Update answer) {
-        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(answer.getMessage().getChatId());
+        var message = KeyboardConfiguration.createMessageWithCalendarKeyboard(answer.getMessage().getChatId());
         return new BotRequest(message, this::processAnswer);
     }
 
-    private BotRequest processAnswer(Update answer){
+    private BotRequest processAnswer(Update answer) {
         var date = answer.getCallbackQuery().getData();
         var tasks = processDateAndGetTasks(date);
-        // Валится на 'message.setChatId(update.getMessage().getChatId().toString());' из BotHelper.java
         var strBuilder = new StringBuilder();
         if (tasks != null) {
             for (Task task : tasks)

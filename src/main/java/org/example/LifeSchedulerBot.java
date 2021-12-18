@@ -1,8 +1,6 @@
 package org.example;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,31 +14,40 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
     private static LifeSchedulerBot instance;
     private final String botUsername;
     private final String botToken;
-    private final KeyboardConfiguration keyboardConfig;
     private final YearsDataBase yearsDataBase;
+    private final KeyboardConfiguration keyboardConfig;
     private final Map<String, BotCommand> botCommands;
+    public static Integer messageId;
+    private static Boolean isExecuted = false;
 
     private LifeSchedulerBot(String botUsername, String botToken) {
         super();
         this.botUsername = botUsername;
         this.botToken = botToken;
-        this.botCommands = new HashMap<String, BotCommand>();
+        this.botCommands = new LinkedHashMap<>();
         this.yearsDataBase = YearsDataBase.getInstance();
         this.keyboardConfig = new KeyboardConfiguration();
         BotHelper.fillBotCommandsDictionary(botCommands, Arrays.asList(
-                new About(),
                 new AddTask(),
-                new Help(botCommands),
-                new GetCompletedTasks(),
-                new GetTasks(),
-                new CompleteTask(),
                 new AddRepetitiveTask(),
-                new DeleteTask()
+                new GetTasks(),
+                new GetClosestTasks(yearsDataBase),
+                new CompleteTask(),
+                new GetCompletedTasks(),
+                new DeleteTask(),
+                new About(),
+                new Help(botCommands),
+                new CancelRepetitiveTask()
         ));
     }
 
-    public static LifeSchedulerBot getInstance(){
-        if (instance == null){
+    public ArrayList<String> getBotCommands() {
+        var arrayList = new ArrayList<>(botCommands.keySet());
+        return arrayList;
+    }
+
+    public static LifeSchedulerBot getInstance() {
+        if (instance == null) {
             instance = new LifeSchedulerBot("LifeScheduler_Bot", System.getenv("LifeSchedulerBotToken"));
         }
         return instance;
@@ -48,30 +55,42 @@ public class LifeSchedulerBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        Message message;
         if ((update.hasMessage() && update.getMessage().hasText()) || (update.hasCallbackQuery() &&
-                !update.getCallbackQuery().getData().equals("null"))) {
+                !update.getCallbackQuery().getData().equals("No data"))) {
             try {
                 var callData = update.hasCallbackQuery() ? update.getCallbackQuery().getData() : null;
-                if (callData != null && (callData.equals("Next") || callData.equals("Previous"))) {
-                    if (keyboardConfig.SwitchMonth(callData)) {
-                        EditMessageReplyMarkup editedMessage = new EditMessageReplyMarkup();
-                        var message = KeyboardConfiguration.sendInlineKeyBoardMessage(
-                                update.getCallbackQuery().getMessage().getChatId()
-                        );
-                        editedMessage.setReplyMarkup((InlineKeyboardMarkup) message.getReplyMarkup());
-                        editedMessage.setChatId(message.getChatId());
-                        editedMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
-                        execute(editedMessage);
-                    }
-                    else {
+                if (callData != null && (callData.equals("Next") || callData.equals("Previous") || callData.equals("Past"))) {
+                    if (callData.equals("Next") || callData.equals("Previous")) {
+                        if (KeyboardConfiguration.trySwitchMonth(callData, false)) {
+                            EditMessageReplyMarkup editedMessage = new EditMessageReplyMarkup();
+                            var sendMessage = KeyboardConfiguration.createMessageWithCalendarKeyboard(
+                                    update.getCallbackQuery().getMessage().getChatId()
+                            );
+                            editedMessage.setReplyMarkup((InlineKeyboardMarkup) sendMessage.getReplyMarkup());
+                            editedMessage.setChatId(sendMessage.getChatId());
+                            editedMessage.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+                            execute(editedMessage);
+                        } else {
+                            var errorMessage = new SendMessage();
+                            errorMessage.setText("Error: Can not proceed to a past date");
+                            errorMessage.setChatId(Long.toString(update.getCallbackQuery().getMessage().getChatId()));
+                            execute(errorMessage);
+                        }
+                    } else {
                         var errorMessage = new SendMessage();
-                        errorMessage.setText("Error: Can not proceed to a past date");
+                        errorMessage.setText("Error: Can not choose past date");
                         errorMessage.setChatId(Long.toString(update.getCallbackQuery().getMessage().getChatId()));
                         execute(errorMessage);
                     }
+                } else {
+                    if (!isExecuted) {
+                        execute(KeyboardConfiguration.createCommandKeyboard(update.getMessage().getChatId()));
+                        isExecuted = true;
+                    }
+                    message = (Message)(execute(BotHelper.FormMessage(update, botCommands)));
+                    messageId = message.getMessageId();
                 }
-                else
-                    execute(BotHelper.FormMessage(update, botCommands));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }

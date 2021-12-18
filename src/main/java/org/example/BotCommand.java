@@ -7,6 +7,6 @@ public interface BotCommand {
     String getDescription();
 
     String getName();
-    
+
     BotRequest exec(Update answer);
 }
