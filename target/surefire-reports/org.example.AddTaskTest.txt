@@ -1,4 +1,16 @@
 -------------------------------------------------------------------------------
 Test set: org.example.AddTaskTest
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.example.AddTaskTest
+Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.001 s <<< FAILURE! - in org.example.AddTaskTest
+addingTwoOverlappingTasksInSameTimeWorks(org.example.AddTaskTest)  Time elapsed: 0 s  <<< ERROR!
+java.lang.NoSuchMethodError: 'java.lang.Boolean DateStructure.Day.tryAddTask(org.example.Task)'
+	at org.example.AddTaskTest.addingTwoOverlappingTasksInSameTimeWorks(AddTaskTest.java:44)
+
+addingTwoNonOverlappingTasksInSameTimeWontWork(org.example.AddTaskTest)  Time elapsed: 0 s  <<< ERROR!
+java.lang.NoSuchMethodError: 'java.lang.Boolean DateStructure.Day.tryAddTask(org.example.Task)'
+	at org.example.AddTaskTest.addingTwoNonOverlappingTasksInSameTimeWontWork(AddTaskTest.java:35)
+
+addingTwoTasksWithSameNameWontWork(org.example.AddTaskTest)  Time elapsed: 0 s  <<< ERROR!
+java.lang.NoSuchMethodError: 'java.lang.Boolean DateStructure.Day.tryAddTask(org.example.Task)'
+	at org.example.AddTaskTest.addingTwoTasksWithSameNameWontWork(AddTaskTest.java:22)
+

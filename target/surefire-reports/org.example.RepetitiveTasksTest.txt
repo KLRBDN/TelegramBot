@@ -1,4 +1,16 @@
 -------------------------------------------------------------------------------
 Test set: org.example.RepetitiveTasksTest
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.example.RepetitiveTasksTest
+Tests run: 3, Failures: 2, Errors: 1, Skipped: 0, Time elapsed: 0.003 s <<< FAILURE! - in org.example.RepetitiveTasksTest
+tryCancelTaskTest(org.example.RepetitiveTasksTest)  Time elapsed: 0.002 s  <<< ERROR!
+java.lang.NoSuchMethodError: 'org.example.BotRequest BotCommands.CancelRepetitiveTask.exec(org.telegram.telegrambots.meta.api.objects.Update)'
+	at org.example.RepetitiveTasksTest.tryCancelTaskTest(RepetitiveTasksTest.java:65)
+
+completeTaskTest(org.example.RepetitiveTasksTest)  Time elapsed: 0 s  <<< FAILURE!
+java.lang.AssertionError
+	at org.example.RepetitiveTasksTest.completeTaskTest(RepetitiveTasksTest.java:51)
+
+tryAddTaskTest(org.example.RepetitiveTasksTest)  Time elapsed: 0 s  <<< FAILURE!
+java.lang.AssertionError
+	at org.example.RepetitiveTasksTest.tryAddTaskTest(RepetitiveTasksTest.java:23)
+

@@ -2,6 +2,9 @@ package org.example;
 
 import java.util.*;
 
+import BotCommands.*;
+import DateStructure.YearsDataBase;
+import DialogueHandling.KeyboardConfiguration;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
