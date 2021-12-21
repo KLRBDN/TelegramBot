@@ -1,3 +1,7 @@
 D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\test\java\org\example\AppTest.java
-D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\test\java\org\example\AddTaskTest.java
-D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\test\java\org\example\AddTaskCommandTest.java
+D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\test\java\BotCommands\GetClosestTasksTest.java
+D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\test\java\BotCommands\AddRepetitiveTaskTest.java
+D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\test\java\DialogFacilities\AddTaskCommandTest.java
+D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\test\java\DateStructure\RepetitiveDateTest.java
+D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\test\java\TaskConfiguration\AddTaskTest.java
+D:\The_p\prog\java\bot\TelegramBot_LifeScheduler\src\test\java\TaskConfiguration\RepetitiveTasksTest.java

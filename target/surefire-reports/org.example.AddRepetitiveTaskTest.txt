@@ -1,0 +1,9 @@
+-------------------------------------------------------------------------------
+Test set: org.example.AddRepetitiveTaskTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.008 s <<< FAILURE! - in org.example.AddRepetitiveTaskTest
+keyboardStateTest(org.example.AddRepetitiveTaskTest)  Time elapsed: 0.006 s  <<< ERROR!
+java.lang.NoSuchMethodError: 'org.example.BotRequest BotCommands.AddRepetitiveTask.exec(org.telegram.telegrambots.meta.api.objects.Update)'
+	at org.example.AddRepetitiveTaskTest.keyboardStateTest(AddRepetitiveTaskTest.java:27)
+	at org.example.AddRepetitiveTaskTest.keyboardStateTest(AddRepetitiveTaskTest.java:14)
+

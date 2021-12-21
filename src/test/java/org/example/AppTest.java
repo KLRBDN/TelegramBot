@@ -5,6 +5,9 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import BotCommands.About;
+import BotCommands.BotCommand;
+import BotCommands.Help;
 import org.junit.Test;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;

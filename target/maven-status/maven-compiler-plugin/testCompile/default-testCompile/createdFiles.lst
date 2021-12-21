@@ -1,0 +1,6 @@
+BotCommands\GetClosestTasksTest.class
+TaskConfiguration\RepetitiveTasksTest.class
+DialogueHandling\AddTaskCommandTest.class
+TaskConfiguration\AddTaskTest.class
+BotCommands\AddRepetitiveTaskTest.class
+DateStructure\RepetitiveDateTest.class

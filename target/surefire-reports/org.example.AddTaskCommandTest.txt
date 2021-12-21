@@ -1,4 +1,17 @@
 -------------------------------------------------------------------------------
 Test set: org.example.AddTaskCommandTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.094 s - in org.example.AddTaskCommandTest
+Tests run: 2, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 0.001 s <<< FAILURE! - in org.example.AddTaskCommandTest
+addTaskCommandTest(org.example.AddTaskCommandTest)  Time elapsed: 0 s  <<< ERROR!
+java.lang.NoSuchMethodError: 'org.example.BotRequest BotCommands.BotCommand.exec(org.telegram.telegrambots.meta.api.objects.Update)'
+	at org.example.AddTaskCommandTest.checkBotRequests(AddTaskCommandTest.java:87)
+	at org.example.AddTaskCommandTest.addTaskCommandTest(AddTaskCommandTest.java:62)
+	at org.example.AddTaskCommandTest.addTaskCommandTest(AddTaskCommandTest.java:41)
+	at org.example.AddTaskCommandTest.addTaskCommandTest(AddTaskCommandTest.java:18)
+
+addRepetitiveTaskCommandTest(org.example.AddTaskCommandTest)  Time elapsed: 0 s  <<< ERROR!
+java.lang.NoSuchMethodError: 'org.example.BotRequest BotCommands.BotCommand.exec(org.telegram.telegrambots.meta.api.objects.Update)'
+	at org.example.AddTaskCommandTest.checkBotRequests(AddTaskCommandTest.java:87)
+	at org.example.AddTaskCommandTest.addRepetitiveTaskCommandTest(AddTaskCommandTest.java:72)
+	at org.example.AddTaskCommandTest.addRepetitiveTaskCommandTest(AddTaskCommandTest.java:47)
+

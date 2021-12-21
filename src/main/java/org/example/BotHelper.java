@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import BotCommands.BotCommand;
+import DialogueHandling.BotRequest;
+import DialogueHandling.StandardBotRequest;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 final class BotHelper {
